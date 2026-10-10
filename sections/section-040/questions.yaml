@@ -1,0 +1,115 @@
+schema_version: 1
+kind: question_bank
+id: ats041-section-040
+course_id: ATS041
+exam_code: KCSA
+status: draft
+provenance: Original practice material; not official examination questions.
+scope:
+  type: section
+  id: section-040
+  title: 'Checkpoint: Isolation Techniques'
+placement:
+  position: after
+  reading: sections/section-040/module-01/course-03-summary.md
+questions:
+- id: ats041-section-040-q01
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Distinguish a threat, vulnerability, risk and security control.
+  source_readings:
+  - sections/section-030/module-01/course-01-from-a-security-goal-to-a-verifiable-control.md
+  prompt: A broad data-read grant enables unauthorized report disclosure. Which term describes the enabling
+    weakness?
+  options:
+  - id: a
+    text: Vulnerability.
+    explanation: The weakness can enable a threat to harm the protected asset.
+  - id: b
+    text: The asset itself.
+    explanation: The report data is the asset, not the enabling permission weakness.
+  - id: c
+    text: A backup recovery point.
+    explanation: A recovery point is a different protection mechanism.
+  correct_option: a
+  explanation: The weakness can enable a threat to harm the protected asset.
+- id: ats041-section-040-q02
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Compare preventive, detective and corrective control purposes.
+  source_readings:
+  - sections/section-030/module-01/course-01-from-a-security-goal-to-a-verifiable-control.md
+  prompt: A team writes an approved-image policy but installs no verification or enforcement mechanism.
+    What remains missing?
+  options:
+  - id: a
+    text: A requirement that the policy be called a Deployment.
+    explanation: Naming does not create the decision mechanism.
+  - id: b
+    text: Nothing because a policy document executes itself.
+    explanation: A document needs operating implementation and ownership.
+  - id: c
+    text: An implemented control that applies the rule to deployment decisions.
+    explanation: Written intent does not itself enforce artifact acceptance.
+  correct_option: c
+  explanation: Written intent does not itself enforce artifact acceptance.
+- id: ats041-section-040-q03
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Evaluate a control's implementation and residual risk.
+  source_readings:
+  - sections/section-030/module-01/course-01-from-a-security-goal-to-a-verifiable-control.md
+  prompt: An image is signed by an approved publisher but contains a known flaw. What does this show?
+  options:
+  - id: a
+    text: No residual risk is possible after one check passes.
+    explanation: Each control has defined scope and limits.
+  - id: b
+    text: Origin verification leaves vulnerability risk to address.
+    explanation: The signature's assurance is narrower than complete artifact safety.
+  - id: c
+    text: Every signature check failed.
+    explanation: A valid signature can coexist with vulnerable content.
+  correct_option: b
+  explanation: The signature's assurance is narrower than complete artifact safety.
+- id: ats041-section-040-q04
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Explain container and virtual-machine isolation boundaries.
+  source_readings:
+  - sections/section-040/module-01/course-02-segmentation-across-workloads-and-identities.md
+  prompt: Two workloads use different namespaces on the same node. What isolation is not automatically
+    created?
+  options:
+  - id: a
+    text: A separate kernel or automatic network denial.
+    explanation: Kubernetes namespaces scope selected resources rather than every execution and communication
+      boundary.
+  - id: b
+    text: Separate resource-name scopes.
+    explanation: Namespacing does provide that organizational boundary.
+  - id: c
+    text: A need to evaluate permissions.
+    explanation: The design still needs permission analysis; namespaces do not remove it.
+  correct_option: a
+  explanation: Kubernetes namespaces scope selected resources rather than every execution and communication
+    boundary.
+- id: ats041-section-040-q05
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Relate process privileges and host access to containment.
+  source_readings:
+  - sections/section-040/module-01/course-01-process-isolation-and-its-security-limits.md
+  prompt: A non-root container receives a powerful runtime socket. Which conclusion is safest?
+  options:
+  - id: a
+    text: Non-root guarantees that every available interface is harmless.
+    explanation: User identity does not neutralize powerful exposed control paths.
+  - id: b
+    text: The socket only changes a Service label.
+    explanation: Runtime management access is an execution-control boundary.
+  - id: c
+    text: The socket can still provide authority beyond its numeric user.
+    explanation: Interfaces and credentials matter alongside process identity.
+  correct_option: c
+  explanation: Interfaces and credentials matter alongside process identity.
