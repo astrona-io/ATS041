@@ -37,7 +37,7 @@ modules:
 - id: module-010
   title: The 4Cs of Cloud Native Security
   description: Concept lessons and scenario reasoning for The 4Cs of Cloud Native Security.
-  draft: true
+  status: alpha
   content:
   - type: reading
     title: 'The 4Cs of Cloud Native Security: Introduction'
@@ -54,7 +54,7 @@ modules:
 - id: module-020
   title: Cloud Provider and Infrastructure Security
   description: Concept lessons and scenario reasoning for Cloud Provider and Infrastructure Security.
-  draft: true
+  status: alpha
   content:
   - type: reading
     title: 'Cloud Provider and Infrastructure Security: Introduction'
@@ -71,7 +71,7 @@ modules:
 - id: module-030
   title: Controls and Frameworks
   description: Concept lessons and scenario reasoning for Controls and Frameworks.
-  draft: true
+  status: alpha
   content:
   - type: reading
     title: 'Controls and Frameworks: Introduction'
@@ -88,7 +88,7 @@ modules:
 - id: module-040
   title: Isolation Techniques
   description: Concept lessons and scenario reasoning for Isolation Techniques.
-  draft: true
+  status: alpha
   content:
   - type: reading
     title: 'Isolation Techniques: Introduction'
@@ -108,7 +108,7 @@ modules:
 - id: module-050
   title: Artifact Repository and Image Security
   description: Concept lessons and scenario reasoning for Artifact Repository and Image Security.
-  draft: true
+  status: alpha
   content:
   - type: reading
     title: 'Artifact Repository and Image Security: Introduction'
@@ -128,7 +128,7 @@ modules:
 - id: module-060
   title: Workload and Application Code Security
   description: Concept lessons and scenario reasoning for Workload and Application Code Security.
-  draft: true
+  status: alpha
   content:
   - type: reading
     title: 'Workload and Application Code Security: Introduction'
