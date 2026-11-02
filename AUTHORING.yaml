@@ -1,0 +1,135 @@
+version: 1
+approval: KCSA-LESSON-PLAN.md approved; reading-only correction 2026-10-11
+course:
+  id: ATS041
+  certification:
+    name: Kubernetes and Cloud Native Security Associate
+    code: KCSA
+    provider: CNCF / Linux Foundation
+    domain: Overview of Cloud Native Security
+    weight: 14
+    competencies:
+    - The 4Cs of Cloud Native Security
+    - Cloud Provider and Infrastructure Security
+    - Controls and Frameworks
+    - Isolation Techniques
+    - Artifact Repository and Image Security
+    - Workload and Application Code Security
+defaults:
+  playground: false
+  module_lab: false
+  capstone: false
+  section_quiz: false
+  final_quiz: true
+sections:
+- id: section-010
+  title: The 4Cs of Cloud Native Security
+  curriculum_item: The 4Cs of Cloud Native Security
+  modules:
+  - id: module-01
+    title: Security Across Cloud, Cluster, Container And Code
+    objectives:
+    - Identify the asset and responsibility at each of the four security layers.
+    - Explain how failure in an outer layer can undermine inner controls.
+    - Compare preventive, detective and corrective protections.
+    - Apply defense in depth to an application scenario.
+    outline:
+    - The Four Layers And Their Trust Relationships
+    playground: false
+    module_lab: false
+    diagrams: []
+  capstone: false
+  section_quiz: false
+- id: section-020
+  title: Cloud Provider and Infrastructure Security
+  curriculum_item: Cloud Provider and Infrastructure Security
+  modules:
+  - id: module-01
+    title: Cloud And Infrastructure Responsibilities
+    objectives:
+    - Explain shared responsibility for managed and self-managed infrastructure.
+    - Identify powerful infrastructure identities and their workload impact.
+    - Compare network exposure controls with application permissions.
+    - Relate recovery and metadata access to infrastructure protection.
+    outline:
+    - Shared Responsibility And Infrastructure Access
+    playground: false
+    module_lab: false
+    diagrams: []
+  capstone: false
+  section_quiz: true
+- id: section-030
+  title: Controls and Frameworks
+  curriculum_item: Controls and Frameworks
+  modules:
+  - id: module-01
+    title: Controls, Risk And Frameworks
+    objectives:
+    - Distinguish a threat, vulnerability, risk and security control.
+    - Compare preventive, detective and corrective control purposes.
+    - Explain how a framework organizes controls and evidence.
+    - Evaluate a control's implementation and residual risk.
+    outline:
+    - From A Security Goal To A Verifiable Control
+    playground: false
+    module_lab: false
+    diagrams: []
+  capstone: false
+  section_quiz: false
+- id: section-040
+  title: Isolation Techniques
+  curriculum_item: Isolation Techniques
+  modules:
+  - id: module-01
+    title: Isolation And Containment Boundaries
+    objectives:
+    - Explain container and virtual-machine isolation boundaries.
+    - Distinguish Linux namespaces from Kubernetes namespaces.
+    - Relate process privileges and host access to containment.
+    - Compare resource, network and identity segmentation.
+    outline:
+    - Process Isolation And Its Security Limits
+    - Segmentation Across Workloads And Identities
+    playground: false
+    module_lab: false
+    diagrams: []
+  capstone: false
+  section_quiz: true
+- id: section-050
+  title: Artifact Repository and Image Security
+  curriculum_item: Artifact Repository and Image Security
+  modules:
+  - id: module-01
+    title: Artifact And Image Assurance
+    objectives:
+    - Distinguish artifact identity, publisher trust and vulnerability evidence.
+    - Explain credential exposure through image and repository workflows.
+    - Relate verification results to the exact deployed digest.
+    - Identify residual risk after a passed supply-chain check.
+    outline:
+    - Credentials And Image Verification Evidence
+    - Repository Policy And The Deployed Artifact
+    playground: false
+    module_lab: false
+    diagrams: []
+  capstone: false
+  section_quiz: false
+- id: section-060
+  title: Workload and Application Code Security
+  curriculum_item: Workload and Application Code Security
+  modules:
+  - id: module-01
+    title: Application Code And Workload Protection
+    objectives:
+    - Identify input validation and application authorization responsibilities.
+    - Explain dependency maintenance and sensitive-data handling.
+    - Relate safe retries and resource use to application security.
+    - Distinguish platform policy from business-level correctness.
+    outline:
+    - Protecting Application Inputs, Data And Dependencies
+    playground: false
+    module_lab: false
+    diagrams: []
+  capstone: false
+  section_quiz: true
+assessment_format: YAML question banks, schema version 1; indexed in assessments/index.yaml

@@ -1,0 +1,113 @@
+schema_version: 1
+kind: question_bank
+id: ats041-section-060
+course_id: ATS041
+exam_code: KCSA
+status: draft
+provenance: Original practice material; not official examination questions.
+scope:
+  type: section
+  id: section-060
+  title: 'Checkpoint: Workload and Application Code Security'
+placement:
+  position: after
+  reading: sections/section-060/module-01/course-02-summary.md
+questions:
+- id: ats041-section-060-q01
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Distinguish artifact identity, publisher trust and vulnerability evidence.
+  source_readings:
+  - sections/section-050/module-01/course-01-credentials-and-image-verification-evidence.md
+  prompt: A scan finds no known issue in an image. What remains unproven?
+  options:
+  - id: a
+    text: Trusted origin and absence of unknown or application logic defects.
+    explanation: Vulnerability findings have bounded knowledge and do not supply every assurance.
+  - id: b
+    text: That the configured scan ran.
+    explanation: The stated result provides evidence that its check ran within its scope.
+  - id: c
+    text: That any image can ever use a digest.
+    explanation: Artifact identity is a separate available mechanism.
+  correct_option: a
+  explanation: Vulnerability findings have bounded knowledge and do not supply every assurance.
+- id: ats041-section-060-q02
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Explain credential exposure through image and repository workflows.
+  source_readings:
+  - sections/section-050/module-01/course-02-repository-policy-and-the-deployed-artifact.md
+  prompt: A private image cannot be pulled because the node lacks registry credentials. Which credential
+    role is missing?
+  options:
+  - id: a
+    text: A database administrator password embedded in the image.
+    explanation: That is a different and unsafe authority arrangement.
+  - id: b
+    text: A certificate that disables all verification.
+    explanation: Weakening verification does not supply the required repository permission.
+  - id: c
+    text: Artifact retrieval access for the runtime.
+    explanation: Database and application credentials do not automatically authorize registry pulls.
+  correct_option: c
+  explanation: Database and application credentials do not automatically authorize registry pulls.
+- id: ats041-section-060-q03
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Relate verification results to the exact deployed digest.
+  source_readings:
+  - sections/section-050/module-01/course-01-credentials-and-image-verification-evidence.md
+  prompt: A pipeline scans digest A but deploys different digest B under the same tag. What is the assurance
+    gap?
+  options:
+  - id: a
+    text: More replicas automatically close the gap.
+    explanation: Replica count does not verify artifact content.
+  - id: b
+    text: The verification evidence is not linked to the executed content.
+    explanation: Tag equality does not establish digest equality.
+  - id: c
+    text: The API cannot store any image reference.
+    explanation: Image selection is supported; the issue is evidence identity.
+  correct_option: b
+  explanation: Tag equality does not establish digest equality.
+- id: ats041-section-060-q04
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Identify input validation and application authorization responsibilities.
+  source_readings:
+  - sections/section-060/module-01/course-01-protecting-application-inputs-data-and-dependencies.md
+  prompt: A report identifier is well formed but belongs to another customer. Which check is still required?
+  options:
+  - id: a
+    text: Authorization for the caller and target report.
+    explanation: Format validation does not establish ownership permission.
+  - id: b
+    text: Only image pull authentication.
+    explanation: Registry access does not authorize business data.
+  - id: c
+    text: Only Pod phase Running.
+    explanation: Execution status does not define user rights.
+  correct_option: a
+  explanation: Format validation does not establish ownership permission.
+- id: ats041-section-060-q05
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Relate safe retries and resource use to application security.
+  source_readings:
+  - sections/section-060/module-01/course-01-protecting-application-inputs-data-and-dependencies.md
+  prompt: A payment request is retried after an uncertain response. Which property protects against duplicate
+    effects?
+  options:
+  - id: a
+    text: Unlimited immediate retries.
+    explanation: They can repeat the effect and amplify load.
+  - id: b
+    text: A namespace name matching the customer.
+    explanation: Naming does not coordinate a transaction.
+  - id: c
+    text: Idempotent handling or durable deduplication.
+    explanation: Application effects and response delivery can fail at different times.
+  correct_option: c
+  explanation: Application effects and response delivery can fail at different times.

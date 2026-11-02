@@ -1,0 +1,112 @@
+schema_version: 1
+kind: question_bank
+id: ats041-domain-review
+course_id: ATS041
+exam_code: KCSA
+status: draft
+provenance: Original practice material; not official examination questions.
+scope:
+  type: domain
+  id: domain-review
+  title: Overview of Cloud Native Security
+placement:
+  position: after
+  reading: sections/section-060/module-01/course-02-summary.md
+questions:
+- id: ats041-domain-review-q01
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Apply defense in depth to an application scenario.
+  source_readings:
+  - sections/section-010/module-01/course-01-the-four-layers-and-their-trust-relationships.md
+  prompt: A vulnerable workload holds a broad API token. Which defense combines relevant layers?
+  options:
+  - id: a
+    text: Patch the input cause, narrow credentials and constrain execution and paths.
+    explanation: Different controls address cause and consequences across the layers.
+  - id: b
+    text: Only rename the Pod.
+    explanation: Identity spelling does not remove vulnerability or authority.
+  - id: c
+    text: Only encrypt the registry connection.
+    explanation: That protects one transport path rather than the full compromise route.
+  correct_option: a
+  explanation: Different controls address cause and consequences across the layers.
+- id: ats041-domain-review-q02
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Identify powerful infrastructure identities and their workload impact.
+  source_readings:
+  - sections/section-020/module-01/course-01-shared-responsibility-and-infrastructure-access.md
+  prompt: A build identity can administer every cluster. What is the principal containment concern?
+  options:
+  - id: a
+    text: The image has too few labels.
+    explanation: Labels do not reduce the broad administrative grant.
+  - id: b
+    text: Managed API patching makes the grant harmless.
+    explanation: Provider maintenance does not remove customer identity misuse.
+  - id: c
+    text: Its blast radius exceeds the build task's need.
+    explanation: Exposed authority can affect environments beyond artifact production.
+  correct_option: c
+  explanation: Exposed authority can affect environments beyond artifact production.
+- id: ats041-domain-review-q03
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Explain how a framework organizes controls and evidence.
+  source_readings:
+  - sections/section-030/module-01/course-01-from-a-security-goal-to-a-verifiable-control.md
+  prompt: A benchmark check is passed. What should a reviewer still establish?
+  options:
+  - id: a
+    text: That no future review is needed.
+    explanation: Configuration and vulnerability knowledge can change.
+  - id: b
+    text: Its scope, effective implementation and relevance to actual risk.
+    explanation: A bounded configuration result is not a universal security guarantee.
+  - id: c
+    text: That every business authorization path is automatically correct.
+    explanation: The benchmark does not prove all application logic.
+  correct_option: b
+  explanation: A bounded configuration result is not a universal security guarantee.
+- id: ats041-domain-review-q04
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Compare resource, network and identity segmentation.
+  source_readings:
+  - sections/section-040/module-01/course-02-segmentation-across-workloads-and-identities.md
+  prompt: A compromised process can reach only its required database, using a broad database role. What
+    risk remains?
+  options:
+  - id: a
+    text: Misuse of legitimate data authority within that dependency.
+    explanation: Network segmentation does not narrow the database role by itself.
+  - id: b
+    text: All data operations are prevented.
+    explanation: The connection and role are deliberately available.
+  - id: c
+    text: No risk because there is no API token.
+    explanation: External data authority is separate from Kubernetes credentials.
+  correct_option: a
+  explanation: Network segmentation does not narrow the database role by itself.
+- id: ats041-domain-review-q05
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Distinguish platform policy from business-level correctness.
+  source_readings:
+  - sections/section-060/module-01/course-01-protecting-application-inputs-data-and-dependencies.md
+  prompt: A Pod meets a restricted profile but reports another user's confidential data. What does the
+    evidence support?
+  options:
+  - id: a
+    text: The profile must automatically prevent every data leak.
+    explanation: It checks defined execution configuration rather than all business logic.
+  - id: b
+    text: The only remedy is more node capacity.
+    explanation: Capacity does not correct report ownership checks.
+  - id: c
+    text: A business-level authorization defect can remain despite platform compliance.
+    explanation: Runtime configuration and application permission protect different contracts.
+  correct_option: c
+  explanation: Runtime configuration and application permission protect different contracts.

@@ -1,9 +1,9 @@
-# Preparation scaffold. Technical pages stay draft until authoring and review.
+# Reading-only course. YAML assessments are registered separately in assessments/index.yaml.
 training:
   id: ATS041
   title: 'KCSA: Overview of Cloud Native Security'
-  description: Preparation scaffold for Overview of Cloud Native Security. Lessons and environments are
-    planned.
+  description: Concept lessons, diagrams and original scenario assessments covering every published objective
+    in this KCSA domain. No labs or playgrounds.
   certification:
     name: Kubernetes and Cloud Native Security Associate
     code: KCSA
@@ -20,7 +20,7 @@ training:
 modules:
 - id: module-intro
   title: Introduction
-  description: Planned introduction and authoring status.
+  description: Audience, learning approach, reading requirements and contribution process.
   content:
   - type: reading
     title: Introduction
@@ -36,61 +36,109 @@ modules:
     path: sections/intro/course-03-how-this-course-is-made.md
 - id: module-010
   title: The 4Cs of Cloud Native Security
-  description: Planned coverage of this curriculum objective.
+  description: Concept lessons and scenario reasoning for The 4Cs of Cloud Native Security.
+  status: alpha
   content:
   - type: reading
-    title: Section Overview
+    title: 'The 4Cs of Cloud Native Security: Introduction'
     path: sections/section-010/README.md
   - type: reading
-    title: The 4Cs of Cloud Native Security
+    title: Security Across Cloud, Cluster, Container And Code
     path: sections/section-010/module-01/course.md
+  - type: reading
+    title: The Four Layers And Their Trust Relationships
+    path: sections/section-010/module-01/course-01-the-four-layers-and-their-trust-relationships.md
+  - type: reading
+    title: Summary
+    path: sections/section-010/module-01/course-02-summary.md
 - id: module-020
   title: Cloud Provider and Infrastructure Security
-  description: Planned coverage of this curriculum objective.
+  description: Concept lessons and scenario reasoning for Cloud Provider and Infrastructure Security.
+  status: alpha
   content:
   - type: reading
-    title: Section Overview
+    title: 'Cloud Provider and Infrastructure Security: Introduction'
     path: sections/section-020/README.md
   - type: reading
-    title: Cloud Provider and Infrastructure Security
+    title: Cloud And Infrastructure Responsibilities
     path: sections/section-020/module-01/course.md
+  - type: reading
+    title: Shared Responsibility And Infrastructure Access
+    path: sections/section-020/module-01/course-01-shared-responsibility-and-infrastructure-access.md
+  - type: reading
+    title: Summary
+    path: sections/section-020/module-01/course-02-summary.md
 - id: module-030
   title: Controls and Frameworks
-  description: Planned coverage of this curriculum objective.
+  description: Concept lessons and scenario reasoning for Controls and Frameworks.
+  status: alpha
   content:
   - type: reading
-    title: Section Overview
+    title: 'Controls and Frameworks: Introduction'
     path: sections/section-030/README.md
   - type: reading
-    title: Controls and Frameworks
+    title: Controls, Risk And Frameworks
     path: sections/section-030/module-01/course.md
+  - type: reading
+    title: From A Security Goal To A Verifiable Control
+    path: sections/section-030/module-01/course-01-from-a-security-goal-to-a-verifiable-control.md
+  - type: reading
+    title: Summary
+    path: sections/section-030/module-01/course-02-summary.md
 - id: module-040
   title: Isolation Techniques
-  description: Planned coverage of this curriculum objective.
+  description: Concept lessons and scenario reasoning for Isolation Techniques.
+  status: alpha
   content:
   - type: reading
-    title: Section Overview
+    title: 'Isolation Techniques: Introduction'
     path: sections/section-040/README.md
   - type: reading
-    title: Isolation Techniques
+    title: Isolation And Containment Boundaries
     path: sections/section-040/module-01/course.md
+  - type: reading
+    title: Process Isolation And Its Security Limits
+    path: sections/section-040/module-01/course-01-process-isolation-and-its-security-limits.md
+  - type: reading
+    title: Segmentation Across Workloads And Identities
+    path: sections/section-040/module-01/course-02-segmentation-across-workloads-and-identities.md
+  - type: reading
+    title: Summary
+    path: sections/section-040/module-01/course-03-summary.md
 - id: module-050
   title: Artifact Repository and Image Security
-  description: Planned coverage of this curriculum objective.
+  description: Concept lessons and scenario reasoning for Artifact Repository and Image Security.
+  status: alpha
   content:
   - type: reading
-    title: Section Overview
+    title: 'Artifact Repository and Image Security: Introduction'
     path: sections/section-050/README.md
   - type: reading
-    title: Artifact Repository and Image Security
+    title: Artifact And Image Assurance
     path: sections/section-050/module-01/course.md
+  - type: reading
+    title: Credentials And Image Verification Evidence
+    path: sections/section-050/module-01/course-01-credentials-and-image-verification-evidence.md
+  - type: reading
+    title: Repository Policy And The Deployed Artifact
+    path: sections/section-050/module-01/course-02-repository-policy-and-the-deployed-artifact.md
+  - type: reading
+    title: Summary
+    path: sections/section-050/module-01/course-03-summary.md
 - id: module-060
   title: Workload and Application Code Security
-  description: Planned coverage of this curriculum objective.
+  description: Concept lessons and scenario reasoning for Workload and Application Code Security.
+  status: alpha
   content:
   - type: reading
-    title: Section Overview
+    title: 'Workload and Application Code Security: Introduction'
     path: sections/section-060/README.md
   - type: reading
-    title: Workload and Application Code Security
+    title: Application Code And Workload Protection
     path: sections/section-060/module-01/course.md
+  - type: reading
+    title: Protecting Application Inputs, Data And Dependencies
+    path: sections/section-060/module-01/course-01-protecting-application-inputs-data-and-dependencies.md
+  - type: reading
+    title: Summary
+    path: sections/section-060/module-01/course-02-summary.md
