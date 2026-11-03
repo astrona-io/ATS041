@@ -6,4 +6,4 @@ At the end, you can explain and compare the concepts in The 4Cs of Cloud Native 
 
 Each section begins with an introduction and learning outcomes. Each module starts with a short map, continues with teaching lessons and ends with a summary. Read the examples carefully, identify which component does the work, and predict what changes when a condition changes.
 
-Original practice questions are prepared as reusable YAML banks at selected section checkpoints and at the end of the domain. They can be presented by a future quiz interface with answer feedback. The current reading manifest contains the teaching pages; the question data is kept separately for integration. These exercises are not copied from the examination.
+Original practice questions are prepared as reusable YAML banks at selected section checkpoints and at the end of the domain. They can be presented by a future quiz interface with answer feedback. Each section also has a quiz entry in the course manifest. These exercises are not copied from the examination.
