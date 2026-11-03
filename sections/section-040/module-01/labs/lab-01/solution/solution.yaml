@@ -1,0 +1,39 @@
+# Reference solution: the same Deployment without host access.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: relay
+  namespace: outpost
+  labels:
+    app: relay
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: relay
+  template:
+    metadata:
+      labels:
+        app: relay
+    spec:
+      serviceAccountName: relay
+      automountServiceAccountToken: false
+      hostPID: false
+      hostNetwork: false
+      hostIPC: false
+      containers:
+        - name: relay
+          image: curlimages/curl:8.22.0
+          command: ["sh", "-c", "while true; do sleep 30; done"]
+          securityContext:
+            privileged: false
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 32Mi

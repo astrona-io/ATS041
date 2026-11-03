@@ -1,0 +1,21 @@
+# Reference solution: the Pod Security labels on orbit and the binding.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: orbit
+  labels:
+    pod-security.kubernetes.io/enforce: baseline
+    pod-security.kubernetes.io/warn: restricted
+    pod-security.kubernetes.io/audit: restricted
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: require-memory-limits-orbit
+spec:
+  policyName: require-memory-limits
+  validationActions: ["Deny", "Audit"]
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        kubernetes.io/metadata.name: orbit

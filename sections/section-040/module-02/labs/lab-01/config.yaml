@@ -1,0 +1,68 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Network And Resource Segmentation (LAB). Graded against the live cluster.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-041-lab-040-02
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - mccutchen/go-httpbin:2.25.0
+      - curlimages/curl:8.22.0
+
+# Starting state: the namespace `depot` with the `ledger` backend and the
+# `loader` client, plus the `shuttle` client in `starfleet`. No NetworkPolicy,
+# ResourceQuota or LimitRange exists, and the service accounts mount tokens.
+# The faults are left in place on purpose.
+bootstrap:
+  init:
+    - name: seed-cluster
+      description: Create the depot namespace with its workloads and no segmentation
+      type: file
+      source: bootstrap/01-seed-cluster.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+
+validation:
+  scripts:
+    - name: default-deny-ingress
+      description: depot has a default deny ingress policy
+      type: file
+      source: validation/validate-default-deny-ingress.sh
+      hint: Create a NetworkPolicy in depot with an empty podSelector, policyTypes Ingress and no ingress rules.
+    - name: ledger-allow-rules
+      description: ledger accepts only loader and the shuttle pods of starfleet, on port 8080
+      type: file
+      source: validation/validate-ledger-allow-rules.sh
+      hint: Select app=ledger. Use one from item with podSelector app=loader, and one from item that holds both a namespaceSelector (kubernetes.io/metadata.name=starfleet) and a podSelector app=shuttle. The port is the container port 8080.
+    - name: resource-quota
+      description: depot has a ResourceQuota on pods, requests and limits
+      type: file
+      source: validation/validate-resource-quota.sh
+      hint: Set spec.hard with pods (at most 10), requests.cpu, requests.memory and limits.memory.
+    - name: limit-range-defaults
+      description: depot has a LimitRange that gives containers memory defaults and a maximum
+      type: file
+      source: validation/validate-limit-range-defaults.sh
+      hint: Add a LimitRange entry of type Container with default.memory, defaultRequest.cpu, defaultRequest.memory and max.memory.
+    - name: tokens-not-mounted
+      description: The ledger and loader service accounts do not mount tokens
+      type: file
+      source: validation/validate-tokens-not-mounted.sh
+      hint: Set automountServiceAccountToken to false on the service accounts ledger and loader in depot. Do not change the Deployments' images.
+
+teardown:
+  keepCluster: false

@@ -1,0 +1,67 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Isolation Techniques Capstone (LAB). Graded against the live cluster.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-041-capstone-040
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - mccutchen/go-httpbin:2.25.0
+      - curlimages/curl:8.22.0
+
+# Starting state: the namespace `annex` with the backend `scribe` and the
+# client `courier`. `courier` runs with host access and a token, and nothing
+# segments the namespace. The faults are left in place on purpose.
+bootstrap:
+  init:
+    - name: seed-cluster
+      description: Create the annex namespace with an over-privileged client and no segmentation
+      type: file
+      source: bootstrap/01-seed-cluster.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+
+validation:
+  scripts:
+    - name: courier-host-access-removed
+      description: The courier pod template has no host namespaces, no privilege, no hostPath and no token
+      type: file
+      source: validation/validate-courier-host-access-removed.sh
+      hint: Set hostNetwork and hostPID to false, privileged to false, allowPrivilegeEscalation to false, drop ALL capabilities, remove the hostPath volume and its mount, and set automountServiceAccountToken to false on the pod template.
+    - name: scribe-ingress-segmented
+      description: annex denies ingress by default and scribe accepts only courier on port 8080
+      type: file
+      source: validation/validate-scribe-ingress-segmented.sh
+      hint: Add a default deny ingress policy, then an allow policy for app=scribe with one from peer for app=courier and the port 8080.
+    - name: courier-egress-restricted
+      description: courier may send only to scribe on 8080 and to DNS on port 53
+      type: file
+      source: validation/validate-courier-egress-restricted.sh
+      hint: Add an Egress policy for app=courier with one rule to scribe (TCP 8080) and one rule to the kube-system namespace on UDP and TCP 53.
+    - name: namespace-resource-caps
+      description: annex has a ResourceQuota and a LimitRange with memory defaults
+      type: file
+      source: validation/validate-namespace-resource-caps.sh
+      hint: Quota with pods (at most 6), requests.memory and limits.memory. LimitRange of type Container with default.memory and defaultRequest.memory.
+    - name: workloads-running
+      description: scribe and courier are rolled out and the running courier pod has no host access
+      type: file
+      source: validation/validate-workloads-running.sh
+      hint: Keep the Deployment names, labels and images, and wait for the courier rollout to finish.
+
+teardown:
+  keepCluster: false

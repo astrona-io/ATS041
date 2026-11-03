@@ -1,0 +1,67 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Artifact Supply Chain Capstone (LAB). Graded against the live cluster.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-041-capstone-050
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+
+# Starting state: see manifests/lab-start.yaml. The faults are left in place
+# on purpose.
+bootstrap:
+  init:
+    - name: seed-cluster
+      description: Create the namespaces, service accounts and Deployments
+      type: file
+      source: bootstrap/01-seed-cluster.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+    - name: wait-for-policy
+      description: Wait until the admission policy rejects a non-compliant pod
+      type: file
+      source: testing/wait-for-policy.sh
+
+validation:
+  scripts:
+    - name: cargo-pinned-to-recorded-digest
+      description: The cargo Deployment uses the repository and the digest from the release record and stays at zero replicas
+      type: file
+      source: validation/validate-cargo-pinned-to-recorded-digest.sh
+      hint: Read cargo-digest from the release-record ConfigMap and use kubectl set image.
+    - name: pull-credentials-through-serviceaccount
+      description: registry-creds is correct, the loader ServiceAccount uses it and new pods inherit it
+      type: file
+      source: validation/validate-pull-credentials-through-serviceaccount.sh
+      hint: Create the docker-registry Secret, patch the ServiceAccount loader and leave the Deployments alone.
+    - name: digest-policy-defined
+      description: A policy and a binding that deny exist and cover pods
+      type: file
+      source: validation/validate-digest-policy-defined.sh
+      hint: Create a ValidatingAdmissionPolicy for pods and a binding with validationActions Deny.
+    - name: digest-required-in-shipyard
+      description: Pods that use digests are admitted, tag-only pods and init containers are rejected
+      type: file
+      source: validation/validate-digest-required-in-shipyard.sh
+      hint: "Test every container and init container for the pattern @sha256: followed by 64 hexadecimal characters."
+    - name: scope-limited-to-shipyard
+      description: Tag-only pods are still admitted in outpost and kube-system
+      type: file
+      source: validation/validate-scope-limited-to-shipyard.sh
+      hint: Scope the binding with a namespaceSelector on kubernetes.io/metadata.name.
+
+teardown:
+  keepCluster: false

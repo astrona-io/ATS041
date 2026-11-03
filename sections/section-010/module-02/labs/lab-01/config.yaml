@@ -1,0 +1,68 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Defense In Depth: Preventive, Detective And Corrective Controls (LAB). Graded against the live cluster.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-041-lab-010-02
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - ghcr.io/stefanprodan/podinfo:6.15.0
+      - mccutchen/go-httpbin:2.25.0
+      - curlimages/curl:8.22.0
+
+# Starting state: the Starfleet workloads, no Pod Security labels, an unmanaged
+# privileged pod in outpost and a probe rollout that points at a missing image.
+# The weaknesses are left in place on purpose.
+bootstrap:
+  init:
+    - name: seed-cluster
+      description: Create the workloads, the unmanaged pod and the failed rollout
+      type: file
+      source: bootstrap/01-seed-cluster.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+
+validation:
+  scripts:
+    - name: outpost-enforces-baseline
+      description: outpost enforces baseline or restricted
+      type: file
+      source: validation/validate-outpost-enforces-baseline.sh
+      hint: Label the namespace outpost with pod-security.kubernetes.io/enforce=baseline.
+    - name: privileged-pod-rejected
+      description: A privileged pod is rejected in outpost and a plain pod is accepted
+      type: file
+      source: validation/validate-privileged-pod-rejected.sh
+      hint: The enforce label rejects the privileged pod at the API server. Do not use the privileged level.
+    - name: audit-and-warn-restricted
+      description: outpost audits and warns at the restricted level
+      type: file
+      source: validation/validate-audit-and-warn-restricted.sh
+      hint: Add the labels pod-security.kubernetes.io/audit=restricted and pod-security.kubernetes.io/warn=restricted.
+    - name: intruder-removed
+      description: The unmanaged privileged pod is deleted and drifter keeps running
+      type: file
+      source: validation/validate-intruder-removed.sh
+      hint: The enforce label does not remove running pods. Delete the pod intruder yourself.
+    - name: probe-rolled-back
+      description: probe runs the working image again
+      type: file
+      source: validation/validate-probe-rolled-back.sh
+      hint: Use kubectl rollout undo on the Deployment probe in starfleet.
+
+teardown:
+  keepCluster: false

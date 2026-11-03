@@ -1,0 +1,101 @@
+# Starting state for the capstone: the namespace `relay` with a beacon
+# Deployment that is privileged and mounts a node directory, a service account
+# bound to cluster-admin, an unmanaged pod, and no Pod Security labels.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: relay
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: beacon
+  namespace: relay
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: beacon-admin
+subjects:
+  - kind: ServiceAccount
+    name: beacon
+    namespace: relay
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: beacon
+  namespace: relay
+  labels:
+    app: beacon
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: beacon
+  template:
+    metadata:
+      labels:
+        app: beacon
+    spec:
+      serviceAccountName: beacon
+      containers:
+        - name: beacon
+          image: ghcr.io/stefanprodan/podinfo:6.15.0
+          ports:
+            - name: http
+              containerPort: 9898
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+          securityContext:
+            privileged: true
+            runAsUser: 0
+          volumeMounts:
+            - name: host-etc
+              mountPath: /host-etc
+              readOnly: true
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              memory: 64Mi
+      volumes:
+        - name: host-etc
+          hostPath:
+            path: /etc
+            type: Directory
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: stray
+  namespace: relay
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: stray
+  namespace: relay
+  labels:
+    app: stray
+spec:
+  serviceAccountName: stray
+  containers:
+    - name: stray
+      image: curlimages/curl:8.22.0
+      command: ["sh", "-c", "while true; do sleep 30; done"]
+      securityContext:
+        privileged: true
+      resources:
+        requests:
+          cpu: 10m
+          memory: 16Mi
+        limits:
+          memory: 32Mi

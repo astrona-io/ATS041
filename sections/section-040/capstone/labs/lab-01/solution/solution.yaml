@@ -1,0 +1,120 @@
+# Reference solution for the isolation capstone.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: courier
+  namespace: annex
+  labels:
+    app: courier
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: courier
+  template:
+    metadata:
+      labels:
+        app: courier
+    spec:
+      serviceAccountName: courier
+      automountServiceAccountToken: false
+      hostNetwork: false
+      hostPID: false
+      containers:
+        - name: courier
+          image: curlimages/curl:8.22.0
+          command: ["sh", "-c", "while true; do sleep 30; done"]
+          securityContext:
+            privileged: false
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 32Mi
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-ingress
+  namespace: annex
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-scribe-from-courier
+  namespace: annex
+spec:
+  podSelector:
+    matchLabels:
+      app: scribe
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: courier
+      ports:
+        - protocol: TCP
+          port: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: courier-egress
+  namespace: annex
+spec:
+  podSelector:
+    matchLabels:
+      app: courier
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app: scribe
+      ports:
+        - protocol: TCP
+          port: 8080
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: annex-quota
+  namespace: annex
+spec:
+  hard:
+    pods: "6"
+    requests.memory: 256Mi
+    limits.memory: 512Mi
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: annex-container-defaults
+  namespace: annex
+spec:
+  limits:
+    - type: Container
+      defaultRequest:
+        memory: 32Mi
+      default:
+        memory: 128Mi

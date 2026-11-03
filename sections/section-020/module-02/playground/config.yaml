@@ -1,0 +1,43 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Control Plane, Node And Data Boundaries (PLAYGROUND). A clean sandbox: it starts, applies the Starfleet
+# workloads and the exposure objects described below, then stays running for
+# free exploration. No task, no grading, no `astrona submit`.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-041-playground-020-02
+  docs:
+    guide: docs/overview.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - ghcr.io/stefanprodan/podinfo:6.15.0
+      - mccutchen/go-httpbin:2.25.0
+      - curlimages/curl:8.22.0
+
+# What the learner starts with: the Starfleet workloads, a binding that gives the view role to unauthenticated callers, a node-inspector Deployment with a hostPath mount, a Secret and a ConfigMap, and a Role that lets scout read Secrets (all on purpose).
+bootstrap:
+  manifests:
+    - name: starfleet
+      type: file
+      source: manifests/starfleet.yaml
+    - name: exposure
+      type: file
+      source: manifests/exposure.yaml
+  waitFor:
+    - resource: deploy/scout
+      namespace: starfleet
+    - resource: deploy/probe
+      namespace: starfleet
+    - resource: deploy/shuttle
+      namespace: starfleet
+    - resource: deploy/drifter
+      namespace: outpost
+    - resource: deploy/node-inspector
+      namespace: starfleet
+
+teardown:
+  keepCluster: false

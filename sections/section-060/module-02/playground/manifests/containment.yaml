@@ -1,0 +1,73 @@
+# Two agents that run the same image: loose-agent runs as root with no settings
+# (on purpose), tight-agent uses every container setting from the module.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: loose-agent
+  namespace: starfleet
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: tight-agent
+  namespace: starfleet
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loose-agent
+  namespace: starfleet
+  labels:
+    app: loose-agent
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: loose-agent
+  template:
+    metadata:
+      labels:
+        app: loose-agent
+    spec:
+      serviceAccountName: loose-agent
+      automountServiceAccountToken: false
+      securityContext:
+        runAsUser: 0
+      containers:
+        - name: loose-agent
+          image: curlimages/curl:8.22.0
+          command: ["sh", "-c", "while true; do sleep 30; done"]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tight-agent
+  namespace: starfleet
+  labels:
+    app: tight-agent
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tight-agent
+  template:
+    metadata:
+      labels:
+        app: tight-agent
+    spec:
+      serviceAccountName: tight-agent
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 100
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: tight-agent
+          image: curlimages/curl:8.22.0
+          command: ["sh", "-c", "while true; do sleep 30; done"]
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]

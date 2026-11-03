@@ -1,0 +1,256 @@
+# Knowledge check for section 010. Listed in astrona.yaml as a `type: quiz` entry after the capstone lab.
+schema_version: 1
+kind: question_bank
+id: ats041-010
+course_id: ATS041
+exam_code: KCSA
+status: draft
+provenance: Original practice material written for this course; not official exam
+  questions.
+scope:
+  type: section
+  id: section-010
+  title: The 4Cs of Cloud Native Security
+questions:
+- id: ats041-010-q01
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Identify the asset and the responsibility at each of the four
+    security layers
+  source_readings:
+  - sections/section-010/module-01/course-01-the-four-layers-and-their-trust-relationships.md
+  prompt: A company runs a Kubernetes cluster on virtual machines rented from a public
+    cloud provider. An administrator at the company asks who must restrict which identities
+    may delete or replace the worker machines. Which statement is correct?
+  options:
+  - id: a
+    text: The provider alone, because it operates the data center and the hypervisor.
+    explanation: The provider secures the services it operates, but the customer sets
+      who may use the account and the machines.
+  - id: b
+    text: The Kubernetes API server, because it schedules all pods onto the machines.
+    explanation: The API server governs Kubernetes objects. It does not control the
+      cloud account that manages machines.
+  - id: c
+    text: The customer, who configures the cloud account permissions under the shared
+      responsibility model.
+    explanation: Correct. The customer configures account permissions and network
+      exposure. The contract states where the provider's part ends.
+  - id: d
+    text: The application developer, because only the code layer can limit machine
+      access.
+    explanation: Code controls cannot limit cloud account permissions.
+  correct_option: c
+  explanation: The customer configures account permissions and network exposure. The
+    contract states where the provider's part ends.
+- id: ats041-010-q02
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Explain how a failure in an outer layer can undermine the controls
+    of an inner layer
+  source_readings:
+  - sections/section-010/module-01/course-01-the-four-layers-and-their-trust-relationships.md
+  prompt: An attacker gains administrator access to the node that runs the `scout`
+    pod. The cluster has strict RBAC, and the pod runs with a restricted securityContext.
+    Which statement best describes the effect?
+  options:
+  - id: a
+    text: The restricted securityContext still fully protects the application, because
+      it is enforced inside the container.
+    explanation: Container settings are enforced by the node's runtime and kernel.
+      A node administrator controls both.
+  - id: b
+    text: The RBAC rules and the securityContext can be bypassed, because they depend
+      on the node and its kernel being trustworthy.
+    explanation: Correct. Each layer trusts the one below. A compromised node lets
+      the attacker act below the controls that run on it.
+  - id: c
+    text: Only availability is affected, because RBAC protects confidentiality on
+      every node.
+    explanation: Node access also threatens confidentiality and integrity, for example
+      through pod data and credentials.
+  - id: d
+    text: Nothing changes, because the control groups of the container block the node
+      administrator.
+    explanation: Control groups limit resource use of a process. They do not restrict
+      the node's own administrator.
+  correct_option: b
+  explanation: Each layer trusts the one below. A compromised node lets the attacker
+    act below the controls that run on it.
+- id: ats041-010-q03
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Read a pod specification and name which fields belong to the
+    cluster layer and which to the container layer
+  source_readings:
+  - sections/section-010/module-01/course-02-cluster-and-container-controls-in-a-pod.md
+  prompt: 'A review lists four pod settings: `automountServiceAccountToken`, `privileged`,
+    `serviceAccountName` and a `hostPath` volume. Which pair of settings is decided
+    mostly by the container runtime''s isolation of the process from the node?'
+  options:
+  - id: a
+    text: "`automountServiceAccountToken` and `serviceAccountName`"
+    explanation: These two decide which cluster credential the pod gets. They are
+      cluster-layer settings.
+  - id: b
+    text: "`serviceAccountName` and `hostPath`"
+    explanation: "`serviceAccountName` is a cluster-layer identity setting."
+  - id: c
+    text: "`automountServiceAccountToken` and `hostPath`"
+    explanation: "`automountServiceAccountToken` is a cluster-layer setting."
+  - id: d
+    text: "`privileged` and `hostPath`"
+    explanation: Correct. Privileged mode and host mounts decide how far the process
+      reaches into the node, so they belong to the container layer.
+  correct_option: d
+  explanation: Privileged mode and host mounts decide how far the process reaches
+    into the node, so they belong to the container layer.
+- id: ats041-010-q04
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Show with kubectl how much a service account token allows, and
+    remove the excess
+  source_readings:
+  - sections/section-010/module-01/course-02-cluster-and-container-controls-in-a-pod.md
+  prompt: The `shuttle` client never calls the Kubernetes API. A reviewer wants it
+    to stop receiving a service account token. What achieves this?
+  options:
+  - id: a
+    text: 'Set `automountServiceAccountToken: false` in the pod specification of the
+      Deployment.'
+    explanation: Correct. With this field set to false, the API server does not add
+      the projected token volume to the pod.
+  - id: b
+    text: 'Set `privileged: false` in the container securityContext.'
+    explanation: Privileged mode and the token are separate settings. This does not
+      remove the token.
+  - id: c
+    text: Delete the ServiceAccount named `shuttle` while the Deployment keeps using
+      it.
+    explanation: The pod would fail to be created, and the Deployment would not recover.
+      The fix is to stop mounting the token.
+  - id: d
+    text: 'Add `readOnly: true` to every volume mount of the pod.'
+    explanation: A read-only mount does not remove the token volume.
+  correct_option: a
+  explanation: With this field set to false, the API server does not add the projected
+    token volume to the pod.
+- id: ats041-010-q05
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Explain what the platform can and cannot control when the application
+    code is vulnerable
+  source_readings:
+  - sections/section-010/module-01/course-03-code-compromise-and-the-path-to-the-cluster.md
+  prompt: An attacker exploits a flaw in an application and runs commands in its container.
+    The pod's service account has no RBAC bindings. The attacker reads the token and
+    sends a request to the API server to list Secrets. What does the API server return,
+    and what does it show?
+  options:
+  - id: a
+    text: It returns 200, because the token proves a valid identity.
+    explanation: A valid identity is not enough. RBAC decides which verbs the identity
+      may use.
+  - id: b
+    text: It returns 403, and it shows that RBAC limits what a stolen token is worth.
+    explanation: Correct. Authentication succeeds, and authorization denies the request.
+      The flaw stays, but the cluster limits the damage.
+  - id: c
+    text: It returns 403, and it shows that the flaw in the code is now fixed.
+    explanation: A denied request does not fix the code. The attacker still runs commands
+      in the container.
+  - id: d
+    text: It returns 200 only if the pod is privileged.
+    explanation: Privileged mode does not change what RBAC allows for a service account.
+  correct_option: b
+  explanation: Authentication succeeds, and authorization denies the request. The
+    flaw stays, but the cluster limits the damage.
+- id: ats041-010-q06
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Enforce a Pod Security level on a namespace and show that the
+    API server rejects a violating pod
+  source_readings:
+  - sections/section-010/module-02/course-01-preventive-controls-at-admission.md
+  prompt: An administrator labels the namespace `outpost` with `pod-security.kubernetes.io/enforce=baseline`.
+    A privileged pod already runs there, and a Deployment in the namespace describes
+    a privileged pod template. What happens?
+  options:
+  - id: a
+    text: The running pod is removed and the Deployment is rejected.
+    explanation: Pod Security Admission does not remove running pods, and it checks
+      pods, not Deployments.
+  - id: b
+    text: The running pod stays, the Deployment is accepted, and its ReplicaSet fails
+      when it creates a new pod.
+    explanation: Correct. Admission applies when a pod is created or updated. The
+      Deployment is accepted, and the ReplicaSet gets the rejection later.
+  - id: c
+    text: The running pod is restarted with a baseline securityContext.
+    explanation: The API server does not change the pod's securityContext.
+  - id: d
+    text: Nothing is checked until the pod restarts, then the pod is admitted with
+      a warning.
+    explanation: In enforce mode, a violating pod is rejected, not admitted with a
+      warning.
+  correct_option: b
+  explanation: Admission applies when a pod is created or updated. The Deployment
+    is accepted, and the ReplicaSet gets the rejection later.
+- id: ats041-010-q07
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Use the audit and warn modes to find violations without blocking
+    them
+  source_readings:
+  - sections/section-010/module-02/course-02-detective-controls-audit-warn-and-events.md
+  prompt: A team enforces `baseline` on a namespace. It wants to find out which workloads
+    would break if the namespace moved to `restricted`, without blocking anything.
+    Which labels do this?
+  options:
+  - id: a
+    text: Set `enforce=restricted` and remove the `warn` label.
+    explanation: Enforcing `restricted` would block the pods, which is the opposite
+      of the goal.
+  - id: b
+    text: Set `audit=privileged` and `warn=privileged`.
+    explanation: The `privileged` level allows everything, so nothing would be reported.
+  - id: c
+    text: Delete the namespace labels, because audit logging records everything by
+      default.
+    explanation: Audit logging is not on by default, and without labels no Pod Security
+      results are produced.
+  - id: d
+    text: Add `warn=restricted` and `audit=restricted` while keeping `enforce=baseline`.
+    explanation: Correct. Warn and audit report restricted violations. Enforce keeps
+      blocking only at baseline.
+  correct_option: d
+  explanation: Warn and audit report restricted violations. Enforce keeps blocking
+    only at baseline.
+- id: ats041-010-q08
+  type: single_choice
+  difficulty: advanced
+  learning_objective: Contain an unmanaged pod and roll back a failed Deployment change
+  source_readings:
+  - sections/section-010/module-02/course-03-corrective-controls-containment-and-recovery.md
+  prompt: A pod in a namespace is privileged and has no owner reference. A second
+    pod is privileged but belongs to a Deployment. An operator deletes both pods.
+    What is the result, and which action contains the second one?
+  options:
+  - id: a
+    text: Both pods are gone. No further action is needed.
+    explanation: The ReplicaSet creates a replacement for the managed pod.
+  - id: b
+    text: Both pods return, because the namespace labels recreate them.
+    explanation: Namespace labels do not create pods. The unmanaged pod stays gone.
+  - id: c
+    text: Only the first pod is gone. The second returns, so the operator must change
+      or scale the Deployment.
+    explanation: Correct. The ReplicaSet keeps the desired count, so the cause must
+      be fixed in the Deployment.
+  - id: d
+    text: Only the second pod is gone, because ReplicaSets remove privileged pods.
+    explanation: A ReplicaSet does not judge privilege. It only keeps the count of
+      pods.
+  correct_option: c
+  explanation: The ReplicaSet keeps the desired count, so the cause must be fixed
+    in the Deployment.

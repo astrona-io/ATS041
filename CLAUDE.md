@@ -199,53 +199,72 @@ Strict guidelines:
 
 ## About this repo (ATS041 only)
 
-The course covers **Overview of Cloud Native Security**, worth **14%** of
-**Kubernetes and Cloud Native Security Associate (KCSA)**. It is part of **ATP009**.
-The official objectives are listed in `astrona.yaml` and mapped in `CURRICULUM.md`.
+Everything above is general. This section is only true for this course.
 
-### Reading-only scope
+### What the student is trying to learn
 
-The maintainer approved the lesson plan, asked for deeper teaching, and explicitly
-requested **no labs or playgrounds**. That instruction overrides shared examples
-about hands-on environments, graded labs and playground markers. Do not create
-runtime configurations, executable exercises or playground lifecycle markers.
-The course must be usable without a cluster or installed command-line tools.
+- **The goal:** pass the **Overview of Cloud Native Security** domain of the
+  **Kubernetes and Cloud Native Security Associate (KCSA)** exam. It is 14%
+  of the exam. This course is part of ATP009.
+- **What the exam tests:** the KCSA is a multiple-choice exam. It tests
+  whether the candidate knows the security concepts of the Kubernetes
+  platform and can reason about a scenario: which layer is at fault, which
+  control fits, which limit a control has. The course therefore teaches each
+  concept at mechanism level and then lets the student see it work (or fail)
+  in a small kind cluster, so that the exam wording matches something the
+  student has observed.
+- **The six official objectives (one section each):**
 
-### Teaching structure and depth
+  | Section | Title |
+  | --- | --- |
+  | 010 | The 4Cs of Cloud Native Security |
+  | 020 | Cloud Provider and Infrastructure Security |
+  | 030 | Controls and Frameworks |
+  | 040 | Isolation Techniques |
+  | 050 | Artifact Repository and Image Security |
+  | 060 | Workload and Application Code Security |
 
-Every section begins with its own introduction and measurable learning outcomes.
-Every module contains a landing page, developed teaching lessons and a final
-`# Summary` page. Put the summary after all its lessons and before the next
-module. This reading-only summary has no playground destruction marker.
+  Every section has two modules. Every module has a landing page, two or
+  three parts of at least 90 lines, a `# Summary` page, one ungraded
+  playground and one graded lab. Every section ends with a capstone lab and
+  a knowledge check (`quiz.yaml`). `sections/final-domain-quiz.yaml` closes
+  the course.
 
-Explain mechanisms, responsible components, realistic examples and the limits
-of each claim. Include worked reasoning and relevant failure cases. Avoid thin
-outlines, repetitive filler and invented command output. Split broad topics when
-needed; do not force a fixed number of lessons. The shared plain-English,
-self-contained-page and Mermaid rules apply throughout.
+### Tools and versions
 
-### Reusable question data
+Only built-in Kubernetes features and the `kubectl` and `jq` tools are
+taught. The cluster is kind v0.33.0 with `kindest/node:v1.35.8` (Kubernetes
+1.35). Example images: `ghcr.io/stefanprodan/podinfo:6.15.0`,
+`mccutchen/go-httpbin:2.25.0`, `curlimages/curl:8.22.0`. Tools that the
+exam names but that need an installation (Trivy, cosign, Falco, kube-bench,
+gVisor, Kata) are explained as concepts and never required in a lab.
 
-Write original single-choice questions as YAML banks under section folders and
-`assessments/`. Use the versioned contract in `schemas/question-bank.schema.json`
-and teaching order in `assessments/index.yaml`. Each bank has 5–15 questions with
-stable IDs, one correct option, per-option feedback, a measurable learning
-objective and source reading paths for author traceability.
+### The example workloads
 
-Do not register YAML as a Markdown reading. A future renderer consumes the bank
-index and presents the checkpoint after its declared reading, preserving bank
-order when several share an anchor. Do not expose answer keys before submission
-in a production quiz interface. These public banks are practice material, not
-secure or official exam questions.
+The Starfleet app is used as in the shared rules: `scout` (podinfo, port
+`9898`), `probe` (go-httpbin, port `8080`), `shuttle` (curl client) in
+`starfleet`, and `drifter` (curl client) in `outpost`. Each workload has its
+own service account. Labs may add namespaces and objects named for the
+scenario, but never use the `default` service account in an example.
 
-### Review and authoring checks
+### Status of the build
 
-Preserve the shared CLAUDE.md prefix copied from ATS015. Keep course IDs, official
-domain weights and ATP links unchanged. Technical pages have `draft: true` in
-Markdown front matter until review; a module-level flag alone is insufficient.
-The ATP registration remains draft until publication is approved.
+The labs and playgrounds were built without being booted or run
+(untested). Every lab `README.md` says `UNTESTED`. They pass the static
+checks only: `astrona validate -c`, `bash -n` on every script and a YAML
+parse. Nothing in the pages claims that a command was run. Where a page
+shows output, it is output that the documented Kubernetes behavior
+produces and that the command text makes obvious; the author never invents
+logs, digests or identifiers. Treat the first real run as the test and fix
+what it finds.
 
-Primary author sources are recorded in `SOURCES.md`. The objective list was
-verified on 2026-10-11. Detailed reading expansions were written on 2026-10-11.
-Validate manifest paths, summary ordering, curriculum coverage and question
-contracts. Do not claim runtime verification for a reading-only course.
+The objective list was verified on 2026-10-11. Primary author sources are in
+`SOURCES.md`.
+
+### Quizzes
+
+Each section has `sections/section-0N0/quiz.yaml` (`kind: question_bank`,
+`status: draft`, five to ten single-choice questions) registered in
+`astrona.yaml` as `type: quiz` with `pass_score: 70`, and the course ends
+with `sections/final-domain-quiz.yaml`. The questions are original practice
+material, not official exam questions.

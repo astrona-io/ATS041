@@ -1,0 +1,204 @@
+# Knowledge check for section 020. Listed in astrona.yaml as a `type: quiz` entry after the capstone lab.
+schema_version: 1
+kind: question_bank
+id: ats041-020
+course_id: ATS041
+exam_code: KCSA
+status: draft
+provenance: Original practice material written for this course; not official exam questions.
+scope:
+  type: section
+  id: section-020
+  title: "Cloud Provider and Infrastructure Security"
+questions:
+  - id: ats041-020-q01
+    type: single_choice
+    difficulty: beginner
+    learning_objective: "Explain shared responsibility for managed and self-managed infrastructure and name who owns a given control"
+    source_readings:
+      - sections/section-020/module-01/course-01-shared-responsibility-and-infrastructure-access.md
+    prompt: |-
+      A company runs its workloads on a managed Kubernetes service. The provider keeps the API server patched. An attacker uses a leaked build credential that has administrator rights on the whole cluster to change running workloads. Whose control failed?
+    options:
+      - id: a
+        text: "The provider's, because it runs the control plane and must prevent every misuse of it."
+        explanation: "The provider patches the control plane. It does not decide which customer identities hold administrator rights."
+      - id: b
+        text: "The customer's, because choosing which identities have which permissions stays with the customer in every service model."
+        explanation: "Correct. A managed control plane transfers patching duties. The customer still owns identity scoping, so a credential with excessive rights is a customer-side gap."
+      - id: c
+        text: "Nobody's, because a valid credential makes any action legitimate."
+        explanation: "A valid credential makes the request authorized. It does not make the grant of such broad rights acceptable."
+      - id: d
+        text: "The cloud provider's physical security, because credentials are stored in its data center."
+        explanation: "Physical security protects the facilities and hardware, not the permissions the customer grants."
+    correct_option: b
+    explanation: "A managed control plane transfers patching duties to the provider. The customer always owns which identities may act and with what permissions."
+
+  - id: ats041-020-q02
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Describe how a workload obtains an identity and when it should not receive one"
+    source_readings:
+      - sections/section-020/module-01/course-02-workload-identity-and-blast-radius.md
+    prompt: |-
+      The `scout` Deployment serves HTTP and never calls the Kubernetes API. A reviewer wants to remove the credential that the pods receive by default. Which change does that?
+    options:
+      - id: a
+        text: "Delete the service account `scout`; existing pods then lose their token immediately."
+        explanation: "Deleting the service account does not remove the token from the running pods, and new pods fail to be created."
+      - id: b
+        text: "Add a `NetworkPolicy` that blocks egress to the API server."
+        explanation: "A network policy limits traffic. The token is still mounted and can be used from elsewhere."
+      - id: c
+        text: "Remove all Roles in the namespace; the token then disappears from the pods."
+        explanation: "Roles define permissions. The token is mounted whether or not any Role exists."
+      - id: d
+        text: "Set `automountServiceAccountToken: false` in the pod template and let the rollout replace the pods."
+        explanation: "Correct. The kubelet then does not add the projected token volume to the new pods. The old pods keep their token until they are replaced."
+    correct_option: d
+    explanation: "`automountServiceAccountToken: false` in the pod template stops the token volume in new pods, and the rollout must finish before old pods lose theirs."
+
+  - id: ats041-020-q03
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Explain how the instance metadata service exposes credentials and how to restrict access to it"
+    source_readings:
+      - sections/section-020/module-01/course-03-instance-metadata-and-egress.md
+    prompt: |-
+      An application in a pod has a server-side request forgery flaw. An attacker makes it fetch `http://169.254.169.254/` and reads the response. Why is this dangerous on a cloud node?
+    options:
+      - id: a
+        text: "The address belongs to the instance metadata service, which can return the node's role credentials to any HTTP caller on the machine, including pods."
+        explanation: "Correct. The service trusts the network path, so a request from a pod can obtain the credentials of the node's cloud role."
+      - id: b
+        text: "The address is the Kubernetes API server, which accepts requests without authentication."
+        explanation: "The API server does not use this address. The metadata service belongs to the cloud provider."
+      - id: c
+        text: "The address is the cluster DNS Service, so the attacker can rewrite every name."
+        explanation: "Cluster DNS has a cluster IP address, and a lookup response does not give credentials."
+      - id: d
+        text: "The address is etcd, and the response contains the stored Secrets."
+        explanation: "etcd is not served on this address and needs client certificates."
+    correct_option: a
+    explanation: "The instance metadata service answers at a link-local address and can return the node's role credentials to any caller on the machine."
+
+  - id: ats041-020-q04
+    type: single_choice
+    difficulty: advanced
+    learning_objective: "Explain how a NetworkPolicy keeps workloads away from the metadata address and what its limits are"
+    source_readings:
+      - sections/section-020/module-01/course-03-instance-metadata-and-egress.md
+    prompt: |-
+      A team writes a `NetworkPolicy` that selects all pods in a namespace, has `policyTypes: [Egress]`, and lists no egress rules, to "block the metadata address". What is the effect, assuming the network plugin enforces policies?
+    options:
+      - id: a
+        text: "It blocks only `169.254.169.254` and leaves every other destination open."
+        explanation: "A policy with no egress rules does not name any address."
+      - id: b
+        text: "It has no effect, because a policy needs an `ipBlock` to be valid."
+        explanation: "The policy is valid. It selects pods and allows no egress at all."
+      - id: c
+        text: "It blocks all egress from the selected pods, including DNS, so the workloads break. An `ipBlock` of `0.0.0.0/0` with an `except` entry blocks only the metadata address."
+        explanation: "Correct. Selected pods keep only the destinations that a rule allows. With no rules, none remain."
+      - id: d
+        text: "It blocks ingress to the pods, and egress stays open."
+        explanation: "Only `Egress` is in `policyTypes`, so the policy does not control ingress."
+    correct_option: c
+    explanation: "A selected pod keeps only the egress that a rule allows. No rules means no egress, including DNS. Allow `0.0.0.0/0` except the metadata address instead."
+
+  - id: ats041-020-q05
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Explain that network reachability, authentication and authorization are separate controls for the API endpoint"
+    source_readings:
+      - sections/section-020/module-02/course-01-api-endpoint-exposure-and-anonymous-access.md
+    prompt: |-
+      An API server is reachable only from a private network. A ClusterRoleBinding gives the `view` ClusterRole to the group `system:unauthenticated`. Which statement is correct?
+    options:
+      - id: a
+        text: "The binding is harmless, because the private network authenticates every caller."
+        explanation: "A network path does not authenticate anyone."
+      - id: b
+        text: "Any caller who can open a connection to the endpoint can read objects that `view` allows, without a credential, so the network path is the only remaining control."
+        explanation: "Correct. Anonymous requests become `system:anonymous` in `system:unauthenticated`, and the binding gives that group the role."
+      - id: c
+        text: "The binding has no effect, because anonymous requests are always rejected before authorization."
+        explanation: "When anonymous authentication is enabled, they pass to authorization."
+      - id: d
+        text: "The binding lets callers read Secrets, because `view` includes them."
+        explanation: "The `view` role does not include Secrets."
+    correct_option: b
+    explanation: "A network restriction does not authorize a caller. A binding to `system:unauthenticated` removes the credential requirement for its role."
+
+  - id: ats041-020-q06
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Explain why a host path mount gives a pod access to the node and which Pod Security Standards level forbids it"
+    source_readings:
+      - sections/section-020/module-02/course-02-node-access-and-host-paths.md
+    prompt: |-
+      A developer who may create pods in the `starfleet` namespace deploys a pod with a `hostPath` volume that mounts a directory of the node. RBAC allows the request. Which control can reject the pod, and at which lowest level?
+    options:
+      - id: a
+        text: "A second RoleBinding, because RBAC reads the volumes in a pod specification."
+        explanation: "RBAC sees the user, the verb and the resource, not the content of the pod."
+      - id: b
+        text: "The `restricted` level only, because `baseline` allows host paths."
+        explanation: "The `baseline` level already forbids host path volumes."
+      - id: c
+        text: "Audit logging, which blocks the request after it is recorded."
+        explanation: "Audit logging records requests. It does not block them."
+      - id: d
+        text: "Pod Security Admission with the `baseline` level in `enforce` mode, which forbids host path volumes."
+        explanation: "Correct. The admission controller inspects the pod specification, and `baseline` forbids `hostPath` volumes, host namespaces and privileged containers."
+    correct_option: d
+    explanation: "RBAC does not read the pod specification. Pod Security Admission does, and the `baseline` level forbids host path volumes."
+
+  - id: ats041-020-q07
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Describe how etcd encryption at rest works, which providers exist and what it does not protect"
+    source_readings:
+      - sections/section-020/module-02/course-03-data-at-rest-keys-and-backups.md
+    prompt: |-
+      Encryption at rest with an `EncryptionConfiguration` is enabled for Secrets. An attacker copies an etcd snapshot from a backup bucket. What does the attacker obtain?
+    options:
+      - id: a
+        text: "Ciphertext for the Secrets, which is unreadable without the key. The key must be stored separately from the snapshot."
+        explanation: "Correct. The API server encrypts before writing, so etcd and its backups hold ciphertext."
+      - id: b
+        text: "Plain text Secrets, because the API server only encrypts data in transit."
+        explanation: "Encryption at rest applies to the stored copy."
+      - id: c
+        text: "Nothing, because snapshots cannot contain Secrets."
+        explanation: "A snapshot is a full copy of the cluster state."
+      - id: d
+        text: "Plain text, because base64 encoding is decoded by etcd before the snapshot is written."
+        explanation: "etcd stores the bytes it receives from the API server."
+    correct_option: a
+    explanation: "The API server encrypts resources before writing them, so snapshots hold ciphertext. The key must not sit next to the snapshot."
+
+  - id: ats041-020-q08
+    type: single_choice
+    difficulty: advanced
+    learning_objective: "Name the protections and the exposure paths of secrets, keys and backups"
+    source_readings:
+      - sections/section-020/module-02/course-03-data-at-rest-keys-and-backups.md
+    prompt: |-
+      A cluster encrypts Secrets at rest with a KMS provider. The service account `scout` has a Role that allows `get` and `list` on Secrets in its namespace, and an attacker takes over a `scout` pod. What is the exposure?
+    options:
+      - id: a
+        text: "None, because the Secrets are encrypted in etcd."
+        explanation: "The API server decrypts the data for every caller that RBAC allows."
+      - id: b
+        text: "Only the encrypted form, because the pod cannot decrypt anything."
+        explanation: "The pod receives plain text from the API server."
+      - id: c
+        text: "The attacker can read every Secret in the namespace in plain text with the pod's token, so the Role must be narrowed to the objects the workload needs."
+        explanation: "Correct. Encryption at rest protects stored copies. Access control decides who reads the data in use."
+      - id: d
+        text: "The attacker can only read Secrets if the node disk is not encrypted."
+        explanation: "Disk encryption protects a stolen disk, not reads through the API."
+    correct_option: c
+    explanation: "Encryption at rest does not limit reads that RBAC allows. Roles must name only the objects the workload needs."

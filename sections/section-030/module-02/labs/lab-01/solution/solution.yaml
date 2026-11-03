@@ -1,0 +1,36 @@
+# Reference solution: the corrected policy and binding, and the namespace label.
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: require-memory-limits
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: ["apps"]
+        apiVersions: ["v1"]
+        operations: ["CREATE", "UPDATE"]
+        resources: ["deployments"]
+  validations:
+    - expression: "object.spec.template.spec.containers.all(c, has(c.resources) && has(c.resources.limits) && 'memory' in c.resources.limits)"
+      message: "Every container must set resources.limits.memory."
+      reason: Invalid
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: require-memory-limits-binding
+spec:
+  policyName: require-memory-limits
+  validationActions: ["Deny", "Audit"]
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        control-scope: in-scope
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: starfleet
+  labels:
+    control-scope: in-scope

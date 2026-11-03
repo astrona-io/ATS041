@@ -1,0 +1,67 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Controls, Risk And Frameworks (LAB). Graded against the live cluster.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-041-lab-030-01
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - ghcr.io/stefanprodan/podinfo:6.15.0
+      - mccutchen/go-httpbin:2.25.0
+      - curlimages/curl:8.22.0
+
+# Starting state: the Starfleet workloads, a privileged debug-tools Deployment,
+# no Pod Security labels on starfleet, and a shuttle that mounts a token.
+bootstrap:
+  init:
+    - name: seed-cluster
+      description: Create the workloads and the privileged debug Deployment
+      type: file
+      source: bootstrap/01-seed-cluster.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+
+validation:
+  scripts:
+    - name: enforce-baseline-on-starfleet
+      description: starfleet enforces the baseline level
+      type: file
+      source: validation/validate-enforce-baseline.sh
+      hint: Set the label pod-security.kubernetes.io/enforce=baseline on the starfleet namespace. Do not use privileged or restricted.
+    - name: warn-and-audit-restricted
+      description: starfleet warns and audits at the restricted level
+      type: file
+      source: validation/validate-warn-audit-restricted.sh
+      hint: Set pod-security.kubernetes.io/warn=restricted and pod-security.kubernetes.io/audit=restricted. These modes detect and never block.
+    - name: privileged-blocked-and-removed
+      description: A privileged pod is rejected and debug-tools is gone
+      type: file
+      source: validation/validate-privileged-removed.sh
+      hint: The enforce label does not remove running pods. Delete the debug-tools Deployment, not only its pod.
+    - name: shuttle-has-no-token
+      description: shuttle pods do not mount a service account token
+      type: file
+      source: validation/validate-shuttle-no-token.sh
+      hint: Set automountServiceAccountToken to false in the pod template of the shuttle Deployment, so new pods are created without the token.
+    - name: workloads-run-and-outpost-untouched
+      description: scout, probe and shuttle run, scout answers shuttle and outpost has no Pod Security labels
+      type: file
+      source: validation/validate-workloads-run.sh
+      hint: Check that every Deployment is Available and that you did not label outpost.
+
+teardown:
+  keepCluster: false

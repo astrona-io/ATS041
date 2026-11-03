@@ -1,0 +1,63 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Pin Images By Digest And Attach Pull Credentials (LAB). Graded against the live cluster.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-041-lab-050-01
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+
+# Starting state: see manifests/lab-start.yaml. The faults are left in place
+# on purpose.
+bootstrap:
+  init:
+    - name: seed-cluster
+      description: Create the namespaces, service accounts and Deployments
+      type: file
+      source: bootstrap/01-seed-cluster.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+
+validation:
+  scripts:
+    - name: relay-pinned-by-digest
+      description: The relay Deployment uses the repository and the digest from the release record, with no tag
+      type: file
+      source: validation/validate-relay-pinned-by-digest.sh
+      hint: Read the digest from the release-record ConfigMap and set the image to repository@digest with kubectl set image.
+    - name: relay-and-hauler-otherwise-unchanged
+      description: Both Deployments keep their replicas and the hauler image
+      type: file
+      source: validation/validate-relay-and-hauler-otherwise-unchanged.sh
+      hint: Do not scale the Deployments and do not change the hauler image.
+    - name: pull-secret-correct
+      description: Secret registry-creds is a dockerconfigjson Secret for the right registry and user
+      type: file
+      source: validation/validate-pull-secret-correct.sh
+      hint: Use kubectl create secret docker-registry with the server, user name and password from the task.
+    - name: hauler-serviceaccount-uses-pull-secret
+      description: The hauler ServiceAccount lists registry-creds in imagePullSecrets
+      type: file
+      source: validation/validate-hauler-serviceaccount-uses-pull-secret.sh
+      hint: Patch the ServiceAccount hauler with imagePullSecrets.
+    - name: new-pods-inherit-pull-secret
+      description: A new pod on the hauler ServiceAccount gets the secret and the Deployment does not set it
+      type: file
+      source: validation/validate-new-pods-inherit-pull-secret.sh
+      hint: Attach the secret to the ServiceAccount only. Do not add imagePullSecrets to the Deployment.
+
+teardown:
+  keepCluster: false

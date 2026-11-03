@@ -1,0 +1,78 @@
+# Namespace shipyard: a cargo Deployment that uses a mutable tag, a tug
+# Deployment that uses a tag only, a service account without a pull secret and
+# the release record. Both Deployments are scaled to zero on purpose.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: shipyard
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: outpost
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: loader
+  namespace: shipyard
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: drifter
+  namespace: outpost
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: release-record
+  namespace: shipyard
+data:
+  cargo-digest: sha256:fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cargo
+  namespace: shipyard
+  labels:
+    app: cargo
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      app: cargo
+  template:
+    metadata:
+      labels:
+        app: cargo
+    spec:
+      serviceAccountName: loader
+      containers:
+        - name: cargo
+          image: ghcr.io/stefanprodan/podinfo:latest
+          ports:
+            - containerPort: 9898
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tug
+  namespace: shipyard
+  labels:
+    app: tug
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      app: tug
+  template:
+    metadata:
+      labels:
+        app: tug
+    spec:
+      serviceAccountName: loader
+      containers:
+        - name: tug
+          image: registry.starfleet.example/fleet/tug:1.9

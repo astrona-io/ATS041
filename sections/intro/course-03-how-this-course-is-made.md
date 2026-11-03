@@ -1,6 +1,6 @@
 # How This Course Is Made
 
-Authors map each section to a published KCSA objective and check technical explanations against primary documentation. They review examples for accuracy, diagrams for clear component responsibilities, and practice questions for one supported answer. No command output is invented, and this reading-only draft makes no claim that a laboratory was executed.
+Authors map each section to a published KCSA objective and check technical explanations against primary documentation. They review examples for accuracy, diagrams for clear component responsibilities, and practice questions for one supported answer. No command output is invented, and the labs and playgrounds are written but not yet run on a live cluster.
 
 Structural checks verify the manifest, reading paths, section introductions and the final summary of every module. Technical review remains necessary before publication. An exam objective can change; maintainers record the date used for the curriculum map and revise the material when needed.
 

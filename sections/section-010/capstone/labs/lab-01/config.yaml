@@ -1,0 +1,67 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# The 4Cs of Cloud Native Security Capstone (LAB). Graded against the live cluster.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-041-capstone-010
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - ghcr.io/stefanprodan/podinfo:6.15.0
+      - curlimages/curl:8.22.0
+
+# Starting state: the namespace relay with a privileged beacon, a service
+# account bound to cluster-admin, an unmanaged privileged pod and no Pod
+# Security labels. The weaknesses are left in place on purpose.
+bootstrap:
+  init:
+    - name: seed-cluster
+      description: Create the relay namespace and its weaknesses
+      type: file
+      source: bootstrap/01-seed-cluster.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+
+validation:
+  scripts:
+    - name: beacon-cluster-admin-removed
+      description: beacon is not bound to cluster-admin
+      type: file
+      source: validation/validate-beacon-cluster-admin-removed.sh
+      hint: Find the ClusterRoleBinding that names beacon and delete it. Keep the service account.
+    - name: beacon-token-not-mounted
+      description: beacon pods get no API token
+      type: file
+      source: validation/validate-beacon-token-not-mounted.sh
+      hint: Set automountServiceAccountToken to false in the pod template of the beacon Deployment.
+    - name: beacon-hardened
+      description: beacon meets the restricted settings and mounts no host path
+      type: file
+      source: validation/validate-beacon-hardened.sh
+      hint: Remove privileged and the hostPath volume. Set runAsNonRoot, a user other than 0, allowPrivilegeEscalation false, drop ALL and the RuntimeDefault seccomp profile.
+    - name: relay-enforces-restricted
+      description: relay enforces the restricted level at the API server
+      type: file
+      source: validation/validate-relay-enforces-restricted.sh
+      hint: Label the namespace relay with pod-security.kubernetes.io/enforce=restricted.
+    - name: stray-removed-and-beacon-ready
+      description: The stray pod is gone and beacon is rolled out and ready
+      type: file
+      source: validation/validate-stray-removed-and-beacon-ready.sh
+      hint: Delete the pod stray. If beacon does not become ready, read the ReplicaSet events for the admission error.
+
+teardown:
+  keepCluster: false

@@ -1,9 +1,8 @@
-# Reading-only course. YAML assessments are registered separately in assessments/index.yaml.
+---
 training:
   id: ATS041
   title: 'KCSA: Overview of Cloud Native Security'
-  description: Concept lessons, diagrams and original scenario assessments covering every published objective
-    in this KCSA domain. No labs or playgrounds.
+  description: Concept lessons, diagrams and original scenario assessments covering every published objective in this KCSA domain. Hands-on labs and playgrounds are being added.
   certification:
     name: Kubernetes and Cloud Native Security Associate
     code: KCSA
@@ -36,11 +35,11 @@ modules:
     path: sections/intro/course-03-how-this-course-is-made.md
 - id: module-010
   title: The 4Cs of Cloud Native Security
-  description: Concept lessons and scenario reasoning for The 4Cs of Cloud Native Security.
-  maturity: alpha
+  description: Concepts, playgrounds, labs, capstone and quiz for The 4Cs of Cloud Native Security.
+  status: alpha
   content:
   - type: reading
-    title: 'The 4Cs of Cloud Native Security: Introduction'
+    title: Section Overview
     path: sections/section-010/README.md
   - type: reading
     title: Security Across Cloud, Cluster, Container And Code
@@ -49,15 +48,122 @@ modules:
     title: The Four Layers And Their Trust Relationships
     path: sections/section-010/module-01/course-01-the-four-layers-and-their-trust-relationships.md
   - type: reading
+    title: Cluster And Container Controls In A Pod Specification
+    path: sections/section-010/module-01/course-02-cluster-and-container-controls-in-a-pod.md
+  - type: reading
+    title: Code Compromise And The Path To The Cluster
+    path: sections/section-010/module-01/course-03-code-compromise-and-the-path-to-the-cluster.md
+  - type: reading
+    title: Question
+    path: sections/section-010/module-01/labs/lab-01/question.md
+  - type: lab
+    title: Security Across Cloud, Cluster, Container And Code Lab
+    path: sections/section-010/module-01/labs/lab-01
+    difficulty: intermediate
+    estimated_duration: 20m
+    topic: cloud-native-security
+    task_kind: build
+    tags:
+    - 4cs
+    - service-account
+    - cluster-admin
+    - automount-service-account-token
+    - security-context
+    - privileged
+    - hostpath
+    learning_goals:
+    - Remove a cluster-admin binding from a workload service account
+    - Stop a pod from receiving a service account token it does not use
+    - Remove privileged mode and a host path mount from a Deployment and set non-root, no privilege escalation and dropped capabilities
+    resources:
+    - name: Kubernetes security overview
+      url: https://kubernetes.io/docs/concepts/security/overview/
+    - name: Configure service accounts for pods
+      url: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
+    - name: Configure a security context
+      url: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+  - type: reading
     title: Summary
-    path: sections/section-010/module-01/course-02-summary.md
+    path: sections/section-010/module-01/course-04-summary.md
+  - type: reading
+    title: 'Defense In Depth: Preventive, Detective And Corrective Controls'
+    path: sections/section-010/module-02/course.md
+  - type: reading
+    title: Preventive Controls At Admission
+    path: sections/section-010/module-02/course-01-preventive-controls-at-admission.md
+  - type: reading
+    title: 'Detective Controls: Audit, Warn And Events'
+    path: sections/section-010/module-02/course-02-detective-controls-audit-warn-and-events.md
+  - type: reading
+    title: 'Corrective Controls: Containment And Recovery'
+    path: sections/section-010/module-02/course-03-corrective-controls-containment-and-recovery.md
+  - type: reading
+    title: Question
+    path: sections/section-010/module-02/labs/lab-01/question.md
+  - type: lab
+    title: Defense In Depth Lab
+    path: sections/section-010/module-02/labs/lab-01
+    difficulty: intermediate
+    estimated_duration: 20m
+    topic: cloud-native-security
+    task_kind: build
+    tags:
+    - defense-in-depth
+    - pod-security-admission
+    - enforce
+    - audit
+    - warn
+    - rollout-undo
+    - containment
+    learning_goals:
+    - Enforce the baseline Pod Security level on a namespace and show that a privileged pod is rejected
+    - Add audit and warn labels at the restricted level
+    - Delete an unmanaged privileged pod and roll back a Deployment stuck on a missing image
+    resources:
+    - name: Pod Security Admission
+      url: https://kubernetes.io/docs/concepts/security/pod-security-admission/
+    - name: Kubernetes auditing
+      url: https://kubernetes.io/docs/tasks/debug/debug-cluster/audit/
+  - type: reading
+    title: Summary
+    path: sections/section-010/module-02/course-04-summary.md
+  - type: reading
+    title: Question
+    path: sections/section-010/capstone/labs/lab-01/question.md
+  - type: lab
+    title: The 4Cs of Cloud Native Security Capstone
+    path: sections/section-010/capstone/labs/lab-01
+    difficulty: advanced
+    estimated_duration: 30m
+    topic: cloud-native-security
+    task_kind: build
+    tags:
+    - 4cs
+    - defense-in-depth
+    - rbac
+    - pod-security-admission
+    - security-context
+    - service-account-token
+    learning_goals:
+    - Remove a cluster-admin grant and a mounted token from a workload service account
+    - Harden a privileged Deployment to the restricted settings and enforce the restricted level
+    - Remove an unmanaged privileged pod and confirm the workload is rolled out and ready
+    resources:
+    - name: Pod Security Standards
+      url: https://kubernetes.io/docs/concepts/security/pod-security-standards/
+    - name: Kubernetes security overview
+      url: https://kubernetes.io/docs/concepts/security/overview/
+  - type: quiz
+    title: 'Knowledge Check: The 4Cs of Cloud Native Security'
+    path: sections/section-010/quiz.yaml
+    pass_score: 70
 - id: module-020
   title: Cloud Provider and Infrastructure Security
-  description: Concept lessons and scenario reasoning for Cloud Provider and Infrastructure Security.
-  maturity: alpha
+  description: Concepts, playgrounds, labs, capstone and quiz for Cloud Provider and Infrastructure Security.
+  status: alpha
   content:
   - type: reading
-    title: 'Cloud Provider and Infrastructure Security: Introduction'
+    title: Section Overview
     path: sections/section-020/README.md
   - type: reading
     title: Cloud And Infrastructure Responsibilities
@@ -66,15 +172,128 @@ modules:
     title: Shared Responsibility And Infrastructure Access
     path: sections/section-020/module-01/course-01-shared-responsibility-and-infrastructure-access.md
   - type: reading
+    title: Infrastructure Identities And Blast Radius
+    path: sections/section-020/module-01/course-02-workload-identity-and-blast-radius.md
+  - type: reading
+    title: The Instance Metadata Service And Egress Control
+    path: sections/section-020/module-01/course-03-instance-metadata-and-egress.md
+  - type: reading
+    title: Question
+    path: sections/section-020/module-01/labs/lab-01/question.md
+  - type: lab
+    title: Cloud And Infrastructure Responsibilities Lab
+    path: sections/section-020/module-01/labs/lab-01
+    difficulty: intermediate
+    estimated_duration: 20m
+    topic: infrastructure-security
+    task_kind: build
+    tags:
+    - shared-responsibility
+    - service-account-token
+    - automountServiceAccountToken
+    - networkpolicy
+    - ipblock
+    - metadata-service
+    - rbac
+    - blast-radius
+    learning_goals:
+    - Switch off the service account token mount for workloads that never call the API
+    - Block the cloud metadata address with a NetworkPolicy ipBlock except entry
+    - Replace a cluster-admin binding with a namespaced Role and RoleBinding
+    resources:
+    - name: Kubernetes service accounts
+      url: https://kubernetes.io/docs/concepts/security/service-accounts/
+    - name: Kubernetes network policies
+      url: https://kubernetes.io/docs/concepts/services-networking/network-policies/
+    - name: Kubernetes cloud native security
+      url: https://kubernetes.io/docs/concepts/security/
+  - type: reading
     title: Summary
-    path: sections/section-020/module-01/course-02-summary.md
+    path: sections/section-020/module-01/course-04-summary.md
+  - type: reading
+    title: Control Plane, Node And Data Boundaries
+    path: sections/section-020/module-02/course.md
+  - type: reading
+    title: API Endpoint Exposure And Anonymous Access
+    path: sections/section-020/module-02/course-01-api-endpoint-exposure-and-anonymous-access.md
+  - type: reading
+    title: Node Access And Host Paths
+    path: sections/section-020/module-02/course-02-node-access-and-host-paths.md
+  - type: reading
+    title: Data At Rest, Keys And Backups
+    path: sections/section-020/module-02/course-03-data-at-rest-keys-and-backups.md
+  - type: reading
+    title: Question
+    path: sections/section-020/module-02/labs/lab-01/question.md
+  - type: lab
+    title: Control Plane, Node And Data Boundaries Lab
+    path: sections/section-020/module-02/labs/lab-01
+    difficulty: intermediate
+    estimated_duration: 20m
+    topic: infrastructure-security
+    task_kind: build
+    tags:
+    - anonymous-access
+    - system-unauthenticated
+    - hostpath
+    - pod-security-admission
+    - baseline
+    - secrets
+    - rbac
+    - encryption-at-rest
+    learning_goals:
+    - Find and delete a ClusterRoleBinding that gives a role to system:unauthenticated
+    - Enforce the Pod Security baseline level and reject host path pods
+    - Limit a service account to one ConfigMap instead of all Secrets
+    resources:
+    - name: Kubernetes Pod Security Standards
+      url: https://kubernetes.io/docs/concepts/security/pod-security-standards/
+    - name: Encrypting confidential data at rest
+      url: https://kubernetes.io/docs/tasks/administer-cluster/encrypt-data/
+    - name: Kubernetes RBAC good practices
+      url: https://kubernetes.io/docs/concepts/security/rbac-good-practices/
+  - type: reading
+    title: Summary
+    path: sections/section-020/module-02/course-04-summary.md
+  - type: reading
+    title: Question
+    path: sections/section-020/capstone/labs/lab-01/question.md
+  - type: lab
+    title: Cloud Provider and Infrastructure Security Capstone
+    path: sections/section-020/capstone/labs/lab-01
+    difficulty: advanced
+    estimated_duration: 30m
+    topic: infrastructure-security
+    task_kind: troubleshoot
+    tags:
+    - capstone
+    - service-account-token
+    - rbac
+    - networkpolicy
+    - metadata-service
+    - anonymous-access
+    - hostpath
+    - pod-security-admission
+    learning_goals:
+    - Reduce an over-privileged workload identity and remove its unused token
+    - Block the metadata address and anonymous access
+    - Enforce the baseline level after removing a host path workload
+    resources:
+    - name: Kubernetes security overview
+      url: https://kubernetes.io/docs/concepts/security/
+    - name: Kubernetes Pod Security Standards
+      url: https://kubernetes.io/docs/concepts/security/pod-security-standards/
+  - type: quiz
+    title: 'Knowledge Check: Cloud Provider and Infrastructure Security'
+    path: sections/section-020/quiz.yaml
+    pass_score: 70
 - id: module-030
   title: Controls and Frameworks
-  description: Concept lessons and scenario reasoning for Controls and Frameworks.
-  maturity: alpha
+  description: Concepts, playgrounds, labs, capstone and quiz for Controls and Frameworks.
+  status: alpha
   content:
   - type: reading
-    title: 'Controls and Frameworks: Introduction'
+    title: Section Overview
     path: sections/section-030/README.md
   - type: reading
     title: Controls, Risk And Frameworks
@@ -83,15 +302,119 @@ modules:
     title: From A Security Goal To A Verifiable Control
     path: sections/section-030/module-01/course-01-from-a-security-goal-to-a-verifiable-control.md
   - type: reading
+    title: Frameworks, Benchmarks And Evidence
+    path: sections/section-030/module-01/course-02-frameworks-benchmarks-and-evidence.md
+  - type: reading
+    title: Threat Modeling And Residual Risk
+    path: sections/section-030/module-01/course-03-threat-modeling-and-residual-risk.md
+  - type: reading
+    title: Question
+    path: sections/section-030/module-01/labs/lab-01/question.md
+  - type: lab
+    title: Controls, Risk And Frameworks Lab
+    path: sections/section-030/module-01/labs/lab-01
+    difficulty: intermediate
+    estimated_duration: 20m
+    topic: security-controls
+    task_kind: hardening
+    tags:
+    - pod-security-admission
+    - preventive-control
+    - detective-control
+    - corrective-control
+    - service-account-token
+    - evidence
+    learning_goals:
+    - Enforce a Pod Security level and add detective warn and audit labels on a namespace
+    - Remove a privileged workload and prove a privileged pod is rejected
+    - Stop a workload from mounting a service account token it does not need
+    resources:
+    - name: Pod Security Admission
+      url: https://kubernetes.io/docs/concepts/security/pod-security-admission/
+    - name: Configure service accounts for pods
+      url: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
+  - type: reading
     title: Summary
-    path: sections/section-030/module-01/course-02-summary.md
+    path: sections/section-030/module-01/course-04-summary.md
+  - type: reading
+    title: Enforcing Controls With Admission Policy
+    path: sections/section-030/module-02/course.md
+  - type: reading
+    title: From A Written Policy To An Admission Check
+    path: sections/section-030/module-02/course-01-from-a-written-policy-to-an-admission-check.md
+  - type: reading
+    title: 'Warn, Audit And Deny: Rolling Out A Control'
+    path: sections/section-030/module-02/course-02-warn-audit-and-deny-rollout.md
+  - type: reading
+    title: Evidence, Gaps And Residual Risk
+    path: sections/section-030/module-02/course-03-evidence-gaps-and-residual-risk.md
+  - type: reading
+    title: Question
+    path: sections/section-030/module-02/labs/lab-01/question.md
+  - type: lab
+    title: Enforcing Controls With Admission Policy Lab
+    path: sections/section-030/module-02/labs/lab-01
+    difficulty: intermediate
+    estimated_duration: 20m
+    topic: admission-control
+    task_kind: troubleshooting
+    tags:
+    - validating-admission-policy
+    - cel
+    - validation-actions
+    - deny
+    - warn
+    - audit
+    - scope
+    learning_goals:
+    - Switch a binding from Warn to Deny and Audit
+    - Scope a binding to one namespace with a namespace label
+    - Correct a CEL expression so it checks the right field and fix a workload that fails it
+    resources:
+    - name: Validating Admission Policy
+      url: https://kubernetes.io/docs/reference/access-authn-authz/validating-admission-policy/
+    - name: Admission controllers
+      url: https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/
+  - type: reading
+    title: Summary
+    path: sections/section-030/module-02/course-04-summary.md
+  - type: reading
+    title: Question
+    path: sections/section-030/capstone/labs/lab-01/question.md
+  - type: lab
+    title: Controls And Frameworks Capstone
+    path: sections/section-030/capstone/labs/lab-01
+    difficulty: advanced
+    estimated_duration: 30m
+    topic: security-controls
+    task_kind: build
+    tags:
+    - pod-security-admission
+    - validating-admission-policy
+    - preventive-control
+    - detective-control
+    - service-account-token
+    - least-privilege
+    learning_goals:
+    - Label a team namespace with Pod Security levels and remove a privileged workload
+    - Bind an admission policy to one namespace and keep other namespaces unchanged
+    - Make a Deployment comply with a memory-limit policy and a no-token rule
+    resources:
+    - name: Pod Security Admission
+      url: https://kubernetes.io/docs/concepts/security/pod-security-admission/
+    - name: Validating Admission Policy
+      url: https://kubernetes.io/docs/reference/access-authn-authz/validating-admission-policy/
+  - type: quiz
+    title: 'Knowledge Check: Controls and Frameworks'
+    path: sections/section-030/quiz.yaml
+    pass_score: 70
 - id: module-040
   title: Isolation Techniques
-  description: Concept lessons and scenario reasoning for Isolation Techniques.
-  maturity: alpha
+  description: Concepts, playgrounds, labs, capstone and quiz for Isolation Techniques.
+  status: alpha
   content:
   - type: reading
-    title: 'Isolation Techniques: Introduction'
+    title: Section Overview
     path: sections/section-040/README.md
   - type: reading
     title: Isolation And Containment Boundaries
@@ -103,15 +426,115 @@ modules:
     title: Segmentation Across Workloads And Identities
     path: sections/section-040/module-01/course-02-segmentation-across-workloads-and-identities.md
   - type: reading
+    title: Host Access In The Pod Spec
+    path: sections/section-040/module-01/course-03-host-access-in-the-pod-spec.md
+  - type: reading
+    title: Question
+    path: sections/section-040/module-01/labs/lab-01/question.md
+  - type: lab
+    title: Remove Host Access From A Workload
+    path: sections/section-040/module-01/labs/lab-01
+    difficulty: intermediate
+    estimated_duration: 20m
+    topic: workload-isolation
+    task_kind: hardening
+    tags:
+    - host-pid
+    - privileged
+    - hostpath
+    - security-context
+    - service-account-token
+    learning_goals:
+    - Remove hostPID, hostNetwork, privileged mode and a hostPath volume from a Deployment
+    - Drop all capabilities and stop the service account token mount
+    - Confirm that the replaced pod runs with the hardened spec
+    resources:
+    - name: Configure a security context for a pod or container
+      url: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+    - name: Pod Security Standards
+      url: https://kubernetes.io/docs/concepts/security/pod-security-standards/
+  - type: reading
     title: Summary
-    path: sections/section-040/module-01/course-03-summary.md
+    path: sections/section-040/module-01/course-04-summary.md
+  - type: reading
+    title: Network And Resource Segmentation
+    path: sections/section-040/module-02/course.md
+  - type: reading
+    title: Network Segmentation With NetworkPolicy
+    path: sections/section-040/module-02/course-01-network-segmentation-with-networkpolicy.md
+  - type: reading
+    title: Resource And Identity Limits
+    path: sections/section-040/module-02/course-02-resource-and-identity-limits.md
+  - type: reading
+    title: 'Stronger Boundaries: Sandboxes And Dedicated Nodes'
+    path: sections/section-040/module-02/course-03-stronger-boundaries-sandboxes-and-dedicated-nodes.md
+  - type: reading
+    title: Question
+    path: sections/section-040/module-02/labs/lab-01/question.md
+  - type: lab
+    title: Segment A Namespace With Network And Resource Controls
+    path: sections/section-040/module-02/labs/lab-01
+    difficulty: intermediate
+    estimated_duration: 20m
+    topic: network-segmentation
+    task_kind: hardening
+    tags:
+    - networkpolicy
+    - default-deny
+    - resourcequota
+    - limitrange
+    - service-account-token
+    learning_goals:
+    - Deny ingress by default and allow only named sources with AND and OR peers
+    - Add a ResourceQuota and a LimitRange with memory defaults
+    - Turn off the service account token mount for workloads that do not call the API
+    resources:
+    - name: Network Policies
+      url: https://kubernetes.io/docs/concepts/services-networking/network-policies/
+    - name: Resource Quotas
+      url: https://kubernetes.io/docs/concepts/policy/resource-quotas/
+    - name: Limit Ranges
+      url: https://kubernetes.io/docs/concepts/policy/limit-range/
+  - type: reading
+    title: Summary
+    path: sections/section-040/module-02/course-04-summary.md
+  - type: reading
+    title: Question
+    path: sections/section-040/capstone/labs/lab-01/question.md
+  - type: lab
+    title: Isolation Techniques Capstone
+    path: sections/section-040/capstone/labs/lab-01
+    difficulty: advanced
+    estimated_duration: 30m
+    topic: workload-isolation
+    task_kind: build
+    tags:
+    - networkpolicy
+    - egress
+    - host-access
+    - resourcequota
+    - limitrange
+    - least-privilege
+    learning_goals:
+    - Remove host access from a client workload
+    - Segment ingress and restrict egress with NetworkPolicy, including a DNS rule
+    - Cap a namespace with a ResourceQuota and LimitRange and keep the workloads running
+    resources:
+    - name: Network Policies
+      url: https://kubernetes.io/docs/concepts/services-networking/network-policies/
+    - name: Security Context
+      url: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+  - type: quiz
+    title: 'Knowledge Check: Isolation Techniques'
+    path: sections/section-040/quiz.yaml
+    pass_score: 70
 - id: module-050
   title: Artifact Repository and Image Security
-  description: Concept lessons and scenario reasoning for Artifact Repository and Image Security.
-  maturity: alpha
+  description: Concepts, playgrounds, labs, capstone and quiz for Artifact Repository and Image Security.
+  status: alpha
   content:
   - type: reading
-    title: 'Artifact Repository and Image Security: Introduction'
+    title: Section Overview
     path: sections/section-050/README.md
   - type: reading
     title: Artifact And Image Assurance
@@ -123,22 +546,228 @@ modules:
     title: Repository Policy And The Deployed Artifact
     path: sections/section-050/module-01/course-02-repository-policy-and-the-deployed-artifact.md
   - type: reading
+    title: Question
+    path: sections/section-050/module-01/labs/lab-01/question.md
+  - type: lab
+    title: Artifact And Image Assurance Lab
+    path: sections/section-050/module-01/labs/lab-01
+    difficulty: intermediate
+    estimated_duration: 15m
+    topic: image-security
+    task_kind: fix
+    tags:
+    - image-digest
+    - imagepullsecrets
+    - serviceaccount
+    - docker-registry-secret
+    - image-pull-policy
+    learning_goals:
+    - Pin a Deployment to the digest recorded in a release record
+    - Create a docker-registry Secret and attach it to a service account
+    - Prove with a server-side dry run that new pods inherit the pull secret
+    resources:
+    - name: Images
+      url: https://kubernetes.io/docs/concepts/containers/images/
+    - name: Pull an image from a private registry
+      url: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+  - type: reading
+    title: Build Inputs And Image Contents
+    path: sections/section-050/module-01/course-03-build-inputs-and-image-contents.md
+  - type: reading
     title: Summary
-    path: sections/section-050/module-01/course-03-summary.md
+    path: sections/section-050/module-01/course-04-summary.md
+  - type: reading
+    title: Controlling Which Images Run
+    path: sections/section-050/module-02/course.md
+  - type: reading
+    title: Approved Registries At Admission
+    path: sections/section-050/module-02/course-01-approved-registries-at-admission.md
+  - type: reading
+    title: Requiring Digests And Rolling Out Policy
+    path: sections/section-050/module-02/course-02-requiring-digests-and-rolling-out-policy.md
+  - type: reading
+    title: Question
+    path: sections/section-050/module-02/labs/lab-01/question.md
+  - type: lab
+    title: Controlling Which Images Run Lab
+    path: sections/section-050/module-02/labs/lab-01
+    difficulty: intermediate
+    estimated_duration: 20m
+    topic: admission-control
+    task_kind: build
+    tags:
+    - validating-admission-policy
+    - cel
+    - admission-control
+    - approved-registries
+    - init-containers
+    learning_goals:
+    - Write a ValidatingAdmissionPolicy and binding that admit only approved registries in one namespace
+    - Check init containers as well as containers
+    - Keep other namespaces unaffected
+    resources:
+    - name: Validating Admission Policy
+      url: https://kubernetes.io/docs/reference/access-authn-authz/validating-admission-policy/
+    - name: Admission controllers
+      url: https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/
+  - type: reading
+    title: Verifying Signatures And Scanning In The Pipeline
+    path: sections/section-050/module-02/course-03-verifying-signatures-and-scanning-in-the-pipeline.md
+  - type: reading
+    title: Summary
+    path: sections/section-050/module-02/course-04-summary.md
+  - type: reading
+    title: Question
+    path: sections/section-050/capstone/labs/lab-01/question.md
+  - type: lab
+    title: Artifact Repository and Image Security Capstone
+    path: sections/section-050/capstone/labs/lab-01
+    difficulty: advanced
+    estimated_duration: 30m
+    topic: image-security
+    task_kind: build
+    tags:
+    - image-digest
+    - imagepullsecrets
+    - serviceaccount
+    - validating-admission-policy
+    - cel
+    - namespace-scope
+    learning_goals:
+    - Pin a Deployment to a recorded digest and deliver pull credentials through a service account
+    - Require digests in one namespace with a validating admission policy
+    - Limit the policy scope so other namespaces are unaffected
+    resources:
+    - name: Images
+      url: https://kubernetes.io/docs/concepts/containers/images/
+    - name: Validating Admission Policy
+      url: https://kubernetes.io/docs/reference/access-authn-authz/validating-admission-policy/
+  - type: quiz
+    title: 'Knowledge Check: Artifact Repository and Image Security'
+    path: sections/section-050/quiz.yaml
+    pass_score: 70
 - id: module-060
   title: Workload and Application Code Security
-  description: Concept lessons and scenario reasoning for Workload and Application Code Security.
-  maturity: alpha
+  description: Concepts, playgrounds, labs, capstone and quiz for Workload and Application Code Security.
+  status: alpha
   content:
   - type: reading
-    title: 'Workload and Application Code Security: Introduction'
+    title: Section Overview
     path: sections/section-060/README.md
   - type: reading
     title: Application Code And Workload Protection
     path: sections/section-060/module-01/course.md
   - type: reading
-    title: Protecting Application Inputs, Data And Dependencies
+    title: Untrusted Input, Authorization And Injection
     path: sections/section-060/module-01/course-01-protecting-application-inputs-data-and-dependencies.md
   - type: reading
+    title: Delivering Credentials To A Workload
+    path: sections/section-060/module-01/course-02-delivering-credentials-to-a-workload.md
+  - type: reading
+    title: Testing Code And Dependencies
+    path: sections/section-060/module-01/course-03-testing-code-and-dependencies.md
+  - type: reading
+    title: Question
+    path: sections/section-060/module-01/labs/lab-01/question.md
+  - type: lab
+    title: Application Code And Workload Protection Lab
+    path: sections/section-060/module-01/labs/lab-01
+    difficulty: intermediate
+    estimated_duration: 20m
+    topic: workload-security
+    task_kind: remediation
+    tags:
+    - secrets
+    - secretkeyref
+    - secret-volume
+    - rbac
+    - auth-can-i
+    - credentials
+    learning_goals:
+    - Move a literal credential from a pod template into a Secret and deliver it as a read-only volume
+    - Remove the permission that lets a service account read Secrets
+    - Keep the workload available while the credential changes
+    resources:
+    - name: Kubernetes Secrets
+      url: https://kubernetes.io/docs/concepts/configuration/secret/
+    - name: Good practices for Kubernetes Secrets
+      url: https://kubernetes.io/docs/concepts/security/secrets-good-practices/
+  - type: reading
     title: Summary
-    path: sections/section-060/module-01/course-02-summary.md
+    path: sections/section-060/module-01/course-04-summary.md
+  - type: reading
+    title: Containing A Compromised Workload
+    path: sections/section-060/module-02/course.md
+  - type: reading
+    title: Container Settings That Limit A Compromised Process
+    path: sections/section-060/module-02/course-01-container-settings-that-limit-a-compromised-process.md
+  - type: reading
+    title: Resource Limits And Bounded Work
+    path: sections/section-060/module-02/course-02-resource-limits-and-bounded-work.md
+  - type: reading
+    title: Question
+    path: sections/section-060/module-02/labs/lab-01/question.md
+  - type: lab
+    title: Containing A Compromised Workload Lab
+    path: sections/section-060/module-02/labs/lab-01
+    difficulty: intermediate
+    estimated_duration: 20m
+    topic: workload-security
+    task_kind: hardening
+    tags:
+    - security-context
+    - run-as-non-root
+    - capabilities
+    - seccomp
+    - limitrange
+    - resourcequota
+    learning_goals:
+    - Harden a Deployment with a non-root user, no privilege escalation, a read-only root file system and dropped capabilities
+    - Create a LimitRange that gives every container default memory values
+    - Create a ResourceQuota and prove that it rejects a pod that asks for too much memory
+    resources:
+    - name: Configure a security context
+      url: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+    - name: Resource Quotas
+      url: https://kubernetes.io/docs/concepts/policy/resource-quotas/
+    - name: Limit Ranges
+      url: https://kubernetes.io/docs/concepts/policy/limit-range/
+  - type: reading
+    title: Summary
+    path: sections/section-060/module-02/course-03-summary.md
+  - type: reading
+    title: Question
+    path: sections/section-060/capstone/labs/lab-01/question.md
+  - type: lab
+    title: Workload and Application Code Security Capstone
+    path: sections/section-060/capstone/labs/lab-01
+    difficulty: advanced
+    estimated_duration: 30m
+    topic: workload-security
+    task_kind: build
+    tags:
+    - secrets
+    - secretkeyref
+    - security-context
+    - resourcequota
+    - service-account
+    - auth-can-i
+    learning_goals:
+    - Move a literal token into a Secret and deliver it with secretKeyRef
+    - Harden a container and bound its memory with a ResourceQuota
+    - Remove Secret access and the API token from a workload that does not call the Kubernetes API
+    resources:
+    - name: Good practices for Kubernetes Secrets
+      url: https://kubernetes.io/docs/concepts/security/secrets-good-practices/
+    - name: Configure a security context
+      url: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+    - name: Resource Quotas
+      url: https://kubernetes.io/docs/concepts/policy/resource-quotas/
+  - type: quiz
+    title: 'Knowledge Check: Workload and Application Code Security'
+    path: sections/section-060/quiz.yaml
+    pass_score: 70
+  - type: quiz
+    title: Final Domain Quiz
+    path: sections/final-domain-quiz.yaml
+    pass_score: 70

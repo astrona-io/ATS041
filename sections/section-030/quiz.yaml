@@ -1,0 +1,204 @@
+# Knowledge check for section 030. Listed in astrona.yaml as a `type: quiz` entry after the capstone lab.
+schema_version: 1
+kind: question_bank
+id: ats041-030
+course_id: ATS041
+exam_code: KCSA
+status: draft
+provenance: Original practice material written for this course; not official exam questions.
+scope:
+  type: section
+  id: section-030
+  title: "Controls and Frameworks"
+questions:
+  - id: ats041-030-q01
+    type: single_choice
+    difficulty: beginner
+    learning_objective: "Compare preventive, detective and corrective controls"
+    source_readings:
+      - sections/section-030/module-01/course-01-from-a-security-goal-to-a-verifiable-control.md
+    prompt: |-
+      A namespace has the label `pod-security.kubernetes.io/warn: baseline` and no `enforce` label. A user creates a pod with a privileged container. The user sees a warning and the pod is created. What kind of control did the label provide?
+    options:
+      - id: a
+        text: "A preventive control, because the API server noticed the violation."
+        explanation: "A preventive control stops the action. The pod was created."
+      - id: b
+        text: "A detective control, because the violation was reported and the pod was still admitted."
+        explanation: "Correct. The `warn` mode reports a violation to the client and admits the pod, so it detects and does not prevent."
+      - id: c
+        text: "A corrective control, because it restored a good state."
+        explanation: "A corrective control limits damage or restores a state after the action. Nothing was restored."
+      - id: d
+        text: "No control, because the label has no effect without a policy engine."
+        explanation: "Pod Security Admission is built into the API server and needs no policy engine."
+    correct_option: b
+    explanation: "The `warn` mode reports a violation and admits the pod, so it is a detective control. Only `enforce` prevents."
+
+  - id: ats041-030-q02
+    type: single_choice
+    difficulty: beginner
+    learning_objective: "Explain how a framework differs from a benchmark"
+    source_readings:
+      - sections/section-030/module-01/course-02-frameworks-benchmarks-and-evidence.md
+    prompt: |-
+      An auditor asks the platform team for a list of specific configuration checks for Kubernetes, each with an audit step and a remediation step. Which kind of document answers this request?
+    options:
+      - id: a
+        text: "The NIST Cybersecurity Framework, because it lists the exact flags of every Kubernetes component."
+        explanation: "The framework organizes functions and control goals. It does not list product flags."
+      - id: b
+        text: "STRIDE, because it ranks the configuration checks by risk."
+        explanation: "STRIDE is a threat modeling method. It is not a list of configuration checks."
+      - id: c
+        text: "The CIS Kubernetes Benchmark, because it lists configuration checks with audit and remediation steps."
+        explanation: "Correct. A benchmark gives detailed, checkable configuration recommendations for one product."
+      - id: d
+        text: "PCI DSS, because it applies to every Kubernetes cluster."
+        explanation: "PCI DSS is a standard for organizations that handle payment card data. It does not apply to every cluster."
+    correct_option: c
+    explanation: "A framework sets goals and a benchmark lists specific configuration checks. The CIS Kubernetes Benchmark is the benchmark for Kubernetes."
+
+  - id: ats041-030-q03
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Match a scenario to a STRIDE threat category"
+    source_readings:
+      - sections/section-030/module-01/course-03-threat-modeling-and-residual-risk.md
+    prompt: |-
+      A developer has a role that allows `update` on Deployments in every namespace. The developer changes the image of a production Deployment to an image that the developer built. Which STRIDE category describes this threat?
+    options:
+      - id: a
+        text: "Tampering, because the integrity of the Deployment was changed through an overly broad permission."
+        explanation: "Correct. Changing a stored object without a legitimate reason breaks integrity, which is tampering."
+      - id: b
+        text: "Spoofing, because the developer pretended to be another user."
+        explanation: "The developer used a real identity. Spoofing needs a false identity."
+      - id: c
+        text: "Repudiation, because the change has no owner."
+        explanation: "Repudiation means that an action cannot be proven. Nothing in the scenario says the change is unlogged."
+      - id: d
+        text: "Denial of service, because the Deployment restarted."
+        explanation: "A restart is a side effect. The threat is the unauthorized change."
+    correct_option: a
+    explanation: "An unauthorized change to a stored object breaks integrity, which STRIDE calls tampering. Role-based access control is the matching control."
+
+  - id: ats041-030-q04
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Explain that a ValidatingAdmissionPolicy needs a binding to take effect"
+    source_readings:
+      - sections/section-030/module-02/course-01-from-a-written-policy-to-an-admission-check.md
+    prompt: |-
+      A team creates a ValidatingAdmissionPolicy that requires a memory limit on every Deployment. Ten minutes later, a Deployment without a limit is still created in every namespace. What is the most likely cause?
+    options:
+      - id: a
+        text: "The policy needs a webhook server before it can run."
+        explanation: "ValidatingAdmissionPolicy is built into the API server and needs no webhook server."
+      - id: b
+        text: "RBAC allows the user to create Deployments, and RBAC overrides admission."
+        explanation: "Authorization runs before admission and does not override it. A rejected request fails even for an allowed user."
+      - id: c
+        text: "The `failurePolicy` is set to `Fail`."
+        explanation: "`Fail` rejects a request when the policy cannot be evaluated. It does not stop a policy from applying."
+      - id: d
+        text: "No ValidatingAdmissionPolicyBinding exists, so the policy applies nowhere."
+        explanation: "Correct. A policy has no effect until a binding gives it a scope and validation actions."
+    correct_option: d
+    explanation: "A ValidatingAdmissionPolicy needs a ValidatingAdmissionPolicyBinding. Without it, the policy is only a stored object."
+
+  - id: ats041-030-q05
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Choose a safe rollout order for the validation actions Audit, Warn and Deny"
+    source_readings:
+      - sections/section-030/module-02/course-02-warn-audit-and-deny-rollout.md
+    prompt: |-
+      A security team must introduce a new admission rule in a cluster where many teams deploy every day. It wants to learn which requests would fail before it blocks anything. Which plan fits?
+    options:
+      - id: a
+        text: "Start with `Deny` and switch to `Warn` if teams complain."
+        explanation: "This blocks requests first and can cause an outage."
+      - id: b
+        text: "Use `Deny` and `Warn` together so teams get both effects."
+        explanation: "The API server does not allow `Deny` and `Warn` in the same binding."
+      - id: c
+        text: "Start with `Audit`, move to `Warn` so authors see the message, then use `Deny` together with `Audit`."
+        explanation: "Correct. Each step adds effect after the team has information about the previous one."
+      - id: d
+        text: "Wait until every existing object complies, because a binding checks stored objects."
+        explanation: "A binding checks requests, not stored objects, so it can be introduced before old objects are fixed."
+    correct_option: c
+    explanation: "Roll out in the order of increasing effect: record with `Audit`, notify with `Warn`, then block with `Deny`. `Deny` and `Warn` cannot be combined."
+
+  - id: ats041-030-q06
+    type: single_choice
+    difficulty: advanced
+    learning_objective: "Name a request that an admission policy does not match and state the residual risk"
+    source_readings:
+      - sections/section-030/module-02/course-03-evidence-gaps-and-residual-risk.md
+    prompt: |-
+      A policy with a `Deny` binding rejects Deployments without a memory limit in `starfleet`. A user then creates a bare pod without a memory limit in `starfleet`, and the API server accepts it. Why?
+    options:
+      - id: a
+        text: "Bare pods are exempt from every admission policy."
+        explanation: "Pods can be matched by a policy. This policy simply does not name them."
+      - id: b
+        text: "The policy matches only the `deployments` resource, so a pod is a request that the policy never evaluates."
+        explanation: "Correct. A policy checks only the resources in its match constraints. A second rule on `pods` closes the gap."
+      - id: c
+        text: "The binding is in `Audit` mode only."
+        explanation: "The binding uses `Deny` and it rejects Deployments, so the mode is not the cause."
+      - id: d
+        text: "Admission policies only check requests from service accounts."
+        explanation: "Admission checks requests from every user and service account."
+    correct_option: b
+    explanation: "The residual risk is that objects the policy does not match, such as bare pods and StatefulSets, can still omit the limit."
+
+  - id: ats041-030-q07
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Explain that enforcing a Pod Security level does not remove running pods"
+    source_readings:
+      - sections/section-030/module-01/course-01-from-a-security-goal-to-a-verifiable-control.md
+    prompt: |-
+      An administrator labels `starfleet` with `pod-security.kubernetes.io/enforce: baseline`. A Deployment there already runs a privileged pod. What happens, and what is the correct next step?
+    options:
+      - id: a
+        text: "The API server stops the pod at once. No next step is needed."
+        explanation: "Enforcement applies to new pods and does not stop running pods."
+      - id: b
+        text: "The pod is removed at the next audit. Wait for the audit."
+        explanation: "Audit mode only writes annotations. It does not remove anything."
+      - id: c
+        text: "The label is refused until the pod is gone. Delete the namespace."
+        explanation: "The label is accepted, with a warning about the existing pod."
+      - id: d
+        text: "The pod keeps running. Delete the Deployment, because a new pod from it would be rejected."
+        explanation: "Correct. `enforce` checks new pods only. Removing the Deployment is the corrective step."
+    correct_option: d
+    explanation: "Enforcement does not touch running pods. Removing the workload is a separate corrective action."
+
+  - id: ats041-030-q08
+    type: single_choice
+    difficulty: advanced
+    learning_objective: "Describe how a team accepts a risk with an owner and a compensating detective control"
+    source_readings:
+      - sections/section-030/module-01/course-03-threat-modeling-and-residual-risk.md
+    prompt: |-
+      A team needs a diagnostics tool that runs privileged. It places the tool in a namespace of its own that allows the `privileged` level. Which additional measures make this an accepted risk and not a hidden one?
+    options:
+      - id: a
+        text: "Label the namespace to warn and audit at `baseline`, and record an owner, a reason and a review date."
+        explanation: "Correct. Warn and audit make each use visible, and the owner and review date keep the exception under control."
+      - id: b
+        text: "Remove every Pod Security label from the namespace so that no warnings appear."
+        explanation: "This hides the exception."
+      - id: c
+        text: "Allow the `privileged` level in every namespace so that the exception is the same everywhere."
+        explanation: "This removes the control from the whole cluster."
+      - id: d
+        text: "Declare the residual risk to be zero because the tool is trusted."
+        explanation: "Residual risk never reaches zero, and trust is not evidence."
+    correct_option: a
+    explanation: "Accept a risk on purpose: contain it in one namespace, make it visible with warn and audit, and give it an owner, a reason and a review date."

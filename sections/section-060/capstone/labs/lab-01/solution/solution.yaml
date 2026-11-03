@@ -1,0 +1,68 @@
+# Reference solution: the Secret, the beacon Deployment and the ResourceQuota.
+# The removal of the beacon-secrets RoleBinding is in apply.sh.
+apiVersion: v1
+kind: Secret
+metadata:
+  name: beacon-credentials
+  namespace: orbit
+type: Opaque
+stringData:
+  token: beacon-token-9
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: beacon
+  namespace: orbit
+  labels:
+    app: beacon
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: beacon
+  template:
+    metadata:
+      labels:
+        app: beacon
+    spec:
+      serviceAccountName: beacon
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: beacon
+          image: mccutchen/go-httpbin:2.25.0
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: API_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: beacon-credentials
+                  key: token
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              memory: 64Mi
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: orbit-quota
+  namespace: orbit
+spec:
+  hard:
+    pods: "5"
+    limits.memory: 512Mi

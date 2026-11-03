@@ -1,0 +1,18 @@
+# Reference solution: the pull secret and its use by the hauler service account.
+apiVersion: v1
+kind: Secret
+metadata:
+  name: registry-creds
+  namespace: dockyard
+type: kubernetes.io/dockerconfigjson
+stringData:
+  .dockerconfigjson: |
+    {"auths":{"registry.starfleet.example":{"username":"fleet-puller","password":"d0ck-pull-7731"}}}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: hauler
+  namespace: dockyard
+imagePullSecrets:
+  - name: registry-creds

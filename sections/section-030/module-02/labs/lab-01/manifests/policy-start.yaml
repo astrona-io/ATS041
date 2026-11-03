@@ -1,0 +1,31 @@
+# The control as the team first wrote it. It has three faults on purpose:
+# the expression checks requests instead of limits, the binding only warns,
+# and the binding selects a namespace label that starfleet does not have.
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: require-memory-limits
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: ["apps"]
+        apiVersions: ["v1"]
+        operations: ["CREATE", "UPDATE"]
+        resources: ["deployments"]
+  validations:
+    - expression: "object.spec.template.spec.containers.all(c, has(c.resources) && has(c.resources.requests) && 'memory' in c.resources.requests)"
+      message: "Every container must set resources.limits.memory."
+      reason: Invalid
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: require-memory-limits-binding
+spec:
+  policyName: require-memory-limits
+  validationActions: ["Warn"]
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        control-scope: in-scope

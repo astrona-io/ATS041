@@ -1,0 +1,48 @@
+# Reference solution: the Secret and the ledger Deployment that reads it as a
+# read-only volume. The removal of the shuttle grant is in apply.sh.
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ledger-db
+  namespace: starfleet
+type: Opaque
+stringData:
+  password: ledger-pass-7
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ledger
+  namespace: starfleet
+  labels:
+    app: ledger
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ledger
+  template:
+    metadata:
+      labels:
+        app: ledger
+    spec:
+      serviceAccountName: ledger
+      automountServiceAccountToken: false
+      containers:
+        - name: ledger
+          image: curlimages/curl:8.22.0
+          command: ["sh", "-c", "while true; do sleep 30; done"]
+          volumeMounts:
+            - name: db-credentials
+              mountPath: /etc/ledger-db
+              readOnly: true
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 32Mi
+      volumes:
+        - name: db-credentials
+          secret:
+            secretName: ledger-db

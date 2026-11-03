@@ -1,0 +1,13 @@
+# Extra objects for the segmentation playground: an empty `trial` namespace for
+# quota and LimitRange experiments, and a RuntimeClass that names a sandbox
+# handler the single node does not have (read-only exercise).
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: trial
+---
+apiVersion: node.k8s.io/v1
+kind: RuntimeClass
+metadata:
+  name: sandboxed
+handler: runsc

@@ -1,0 +1,65 @@
+# Starting weaknesses: the ledger Deployment keeps its database password as a
+# literal value in the pod template, and the shuttle service account may read
+# every Secret in starfleet. Both are left in place on purpose.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ledger
+  namespace: starfleet
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ledger
+  namespace: starfleet
+  labels:
+    app: ledger
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ledger
+  template:
+    metadata:
+      labels:
+        app: ledger
+    spec:
+      serviceAccountName: ledger
+      automountServiceAccountToken: false
+      containers:
+        - name: ledger
+          image: curlimages/curl:8.22.0
+          command: ["sh", "-c", "while true; do sleep 30; done"]
+          env:
+            - name: DB_PASSWORD
+              value: ledger-pass-7
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 32Mi
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: secret-reader
+  namespace: starfleet
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: shuttle-secret-reader
+  namespace: starfleet
+subjects:
+  - kind: ServiceAccount
+    name: shuttle
+    namespace: starfleet
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: secret-reader

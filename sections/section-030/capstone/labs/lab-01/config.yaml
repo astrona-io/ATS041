@@ -1,0 +1,71 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Controls And Frameworks Capstone (LAB). Graded against the live cluster.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-041-capstone-030
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - ghcr.io/stefanprodan/podinfo:6.15.0
+      - curlimages/curl:8.22.0
+
+# Starting state: namespace orbit with relay and a privileged beacon-debug,
+# scout in starfleet, and the policy require-memory-limits with no binding.
+bootstrap:
+  init:
+    - name: seed-cluster
+      description: Create the namespaces, workloads and the policy
+      type: file
+      source: bootstrap/01-seed-cluster.sh
+
+# Applied only by `astrona test`: the reference solution, then a wait until the
+# API server uses the new binding.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+    - name: wait-for-binding
+      description: Wait until the API server rejects a Deployment without a limit in orbit
+      type: file
+      source: testing/wait-for-binding.sh
+
+validation:
+  scripts:
+    - name: orbit-pod-security-labels
+      description: orbit enforces baseline and warns and audits at restricted
+      type: file
+      source: validation/validate-orbit-labels.sh
+      hint: Set pod-security.kubernetes.io/enforce=baseline, warn=restricted and audit=restricted on orbit.
+    - name: privileged-removed-and-rejected
+      description: beacon-debug is gone and a privileged pod is rejected in orbit
+      type: file
+      source: validation/validate-orbit-privileged.sh
+      hint: Enforcing a level does not remove running pods. Delete the beacon-debug Deployment.
+    - name: limits-policy-bound-to-orbit
+      description: The policy denies in orbit and stays out of outpost
+      type: file
+      source: validation/validate-binding-scope.sh
+      hint: Create a ValidatingAdmissionPolicyBinding for require-memory-limits with the Deny action and a namespaceSelector on the label kubernetes.io/metadata.name with the value orbit.
+    - name: relay-complies
+      description: relay has a memory limit, mounts no token and is available
+      type: file
+      source: validation/validate-relay-complies.sh
+      hint: Set resources.limits.memory on the relay container and automountServiceAccountToken false in the pod template.
+    - name: nothing-else-changed
+      description: starfleet has no Pod Security labels, no binding selects it and scout runs
+      type: file
+      source: validation/validate-nothing-else-changed.sh
+      hint: Scope the labels and the binding to orbit only.
+
+teardown:
+  keepCluster: false

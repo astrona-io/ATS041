@@ -1,0 +1,67 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Allow Only Approved Registries (LAB). Graded against the live cluster.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-041-lab-050-02
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+
+# Starting state: see manifests/lab-start.yaml. The faults are left in place
+# on purpose.
+bootstrap:
+  init:
+    - name: seed-cluster
+      description: Create the namespaces, service accounts and Deployments
+      type: file
+      source: bootstrap/01-seed-cluster.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+    - name: wait-for-policy
+      description: Wait until the admission policy rejects a non-compliant pod
+      type: file
+      source: testing/wait-for-policy.sh
+
+validation:
+  scripts:
+    - name: policy-and-binding-defined
+      description: A ValidatingAdmissionPolicy approved-registries and a binding that denies exist
+      type: file
+      source: validation/validate-policy-and-binding-defined.sh
+      hint: Create the ValidatingAdmissionPolicy and a ValidatingAdmissionPolicyBinding with validationActions Deny.
+    - name: approved-images-admitted-in-dockyard
+      description: Pods that use approved registries are admitted in dockyard
+      type: file
+      source: validation/validate-approved-images-admitted-in-dockyard.sh
+      hint: Allow registry.starfleet.example/ and ghcr.io/stefanprodan/ as image prefixes.
+    - name: unapproved-images-rejected-in-dockyard
+      description: Pods from other registries and look-alike prefixes are rejected in dockyard
+      type: file
+      source: validation/validate-unapproved-images-rejected-in-dockyard.sh
+      hint: End each prefix with a slash so that a look-alike host name does not match.
+    - name: init-containers-checked
+      description: A pod with an unapproved init container is rejected
+      type: file
+      source: validation/validate-init-containers-checked.sh
+      hint: Check object.spec.initContainers too. Guard it with has().
+    - name: other-namespaces-unaffected
+      description: Pods in outpost are still admitted and the stray Deployment still exists
+      type: file
+      source: validation/validate-other-namespaces-unaffected.sh
+      hint: Scope the binding with a namespaceSelector on kubernetes.io/metadata.name.
+
+teardown:
+  keepCluster: false

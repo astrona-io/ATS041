@@ -1,0 +1,67 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Cloud And Infrastructure Responsibilities (LAB). Graded against the live cluster.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-041-lab-020-01
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - ghcr.io/stefanprodan/podinfo:6.15.0
+      - mccutchen/go-httpbin:2.25.0
+      - curlimages/curl:8.22.0
+
+# Starting state: the Starfleet workloads with the default token mount, the
+# build-runner service account bound to cluster-admin, no NetworkPolicy.
+bootstrap:
+  init:
+    - name: seed-cluster
+      description: Create the workloads and the over-privileged build-runner identity
+      type: file
+      source: bootstrap/01-seed-cluster.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+
+validation:
+  scripts:
+    - name: tokens-not-mounted
+      description: scout and probe run without a service account token
+      type: file
+      source: validation/validate-tokens-not-mounted.sh
+      hint: Set automountServiceAccountToken to false in the pod template of both Deployments and wait for the rollout. Old pods keep their token.
+    - name: metadata-egress-blocked
+      description: A NetworkPolicy in starfleet blocks 169.254.169.254 and allows other egress
+      type: file
+      source: validation/validate-metadata-egress-blocked.sh
+      hint: Select all pods, set policyTypes to Egress, and allow ipBlock 0.0.0.0/0 with an except entry for 169.254.169.254/32. A policy with no egress rules blocks DNS too.
+    - name: build-runner-not-admin
+      description: build-runner no longer has cluster-wide power
+      type: file
+      source: validation/validate-build-runner-not-admin.sh
+      hint: Delete the ClusterRoleBinding that gives cluster-admin to build-runner. Check with kubectl auth can-i --as.
+    - name: build-runner-updates-deployments
+      description: build-runner may update Deployments in starfleet only
+      type: file
+      source: validation/validate-build-runner-updates-deployments.sh
+      hint: Create a Role in starfleet with get, list, patch and update on deployments in the apps group, and bind it with a RoleBinding. Do not allow delete.
+    - name: workloads-still-run
+      description: The workloads run and outpost is unchanged
+      type: file
+      source: validation/validate-workloads-still-run.sh
+      hint: Every replica of scout, probe and shuttle must be available, and outpost must have no NetworkPolicy.
+
+teardown:
+  keepCluster: false

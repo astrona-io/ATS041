@@ -24,4 +24,4 @@ Verified against the [official objectives](https://training.linuxfoundation.org/
 
 Every section begins with an introduction. Every module ends with a summary before the next module. YAML checkpoint banks follow selected section summaries; a domain review bank closes the course. They are indexed separately for future application integration.
 
-This course has no labs or playgrounds, as requested by the maintainer. All material is readable without a cluster. Technical content remains draft until review; no runtime execution or lab validation is claimed.
+Labs, playgrounds, capstones and per-section quiz.yaml files are now in scope (the maintainer lifted the reading-only limit on 2026-11-03); they are being added and are not yet listed in the manifest. Technical content remains draft until review; no runtime execution or lab validation is claimed.

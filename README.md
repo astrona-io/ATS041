@@ -19,7 +19,7 @@ See [the curriculum map](CURRICULUM.md) for module outcomes. The manifest regist
 
 ## Authoring Status
 
-First content draft for review. No labs or playgrounds are included. No Kubernetes cluster is needed to read this course. Technical sections and the ATP009 registration remain draft until the maintainer approves publication.
+Labs, playgrounds, capstones and quiz.yaml are in scope (the maintainer lifted the reading-only limit on 2026-11-03). Build in progress: they are built untested and checked statically only. Technical sections and the ATP009 registration remain draft until the maintainer approves publication.
 
 ## Sources And Contributions
 

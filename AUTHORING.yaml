@@ -1,5 +1,5 @@
 version: 1
-approval: KCSA-LESSON-PLAN.md approved; reading-only correction 2026-10-11
+approval: KCSA-LESSON-PLAN.md approved; reading-only scope overridden by the maintainer 2026-11-03 (labs, playgrounds, capstones, quiz.yaml now in scope)
 course:
   id: ATS041
   certification:
@@ -16,10 +16,10 @@ course:
     - Artifact Repository and Image Security
     - Workload and Application Code Security
 defaults:
-  playground: false
-  module_lab: false
-  capstone: false
-  section_quiz: false
+  playground: true
+  module_lab: true
+  capstone: true
+  section_quiz: true
   final_quiz: true
 sections:
 - id: section-010
@@ -35,11 +35,11 @@ sections:
     - Apply defense in depth to an application scenario.
     outline:
     - The Four Layers And Their Trust Relationships
-    playground: false
-    module_lab: false
+    playground: true
+    module_lab: true
     diagrams: []
-  capstone: false
-  section_quiz: false
+  capstone: true
+  section_quiz: true
 - id: section-020
   title: Cloud Provider and Infrastructure Security
   curriculum_item: Cloud Provider and Infrastructure Security
@@ -53,10 +53,10 @@ sections:
     - Relate recovery and metadata access to infrastructure protection.
     outline:
     - Shared Responsibility And Infrastructure Access
-    playground: false
-    module_lab: false
+    playground: true
+    module_lab: true
     diagrams: []
-  capstone: false
+  capstone: true
   section_quiz: true
 - id: section-030
   title: Controls and Frameworks
@@ -71,11 +71,11 @@ sections:
     - Evaluate a control's implementation and residual risk.
     outline:
     - From A Security Goal To A Verifiable Control
-    playground: false
-    module_lab: false
+    playground: true
+    module_lab: true
     diagrams: []
-  capstone: false
-  section_quiz: false
+  capstone: true
+  section_quiz: true
 - id: section-040
   title: Isolation Techniques
   curriculum_item: Isolation Techniques
@@ -90,10 +90,10 @@ sections:
     outline:
     - Process Isolation And Its Security Limits
     - Segmentation Across Workloads And Identities
-    playground: false
-    module_lab: false
+    playground: true
+    module_lab: true
     diagrams: []
-  capstone: false
+  capstone: true
   section_quiz: true
 - id: section-050
   title: Artifact Repository and Image Security
@@ -109,11 +109,11 @@ sections:
     outline:
     - Credentials And Image Verification Evidence
     - Repository Policy And The Deployed Artifact
-    playground: false
-    module_lab: false
+    playground: true
+    module_lab: true
     diagrams: []
-  capstone: false
-  section_quiz: false
+  capstone: true
+  section_quiz: true
 - id: section-060
   title: Workload and Application Code Security
   curriculum_item: Workload and Application Code Security
@@ -127,9 +127,9 @@ sections:
     - Distinguish platform policy from business-level correctness.
     outline:
     - Protecting Application Inputs, Data And Dependencies
-    playground: false
-    module_lab: false
+    playground: true
+    module_lab: true
     diagrams: []
-  capstone: false
+  capstone: true
   section_quiz: true
 assessment_format: YAML question banks, schema version 1; indexed in assessments/index.yaml

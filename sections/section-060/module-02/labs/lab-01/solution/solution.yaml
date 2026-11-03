@@ -1,0 +1,24 @@
+# Reference solution: the LimitRange and the ResourceQuota. The change of the
+# probe Deployment is in apply.sh.
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: container-defaults
+  namespace: starfleet
+spec:
+  limits:
+    - type: Container
+      defaultRequest:
+        memory: 32Mi
+      default:
+        memory: 64Mi
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: starfleet-quota
+  namespace: starfleet
+spec:
+  hard:
+    pods: "10"
+    limits.memory: 1Gi

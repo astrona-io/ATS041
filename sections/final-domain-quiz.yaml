@@ -1,0 +1,409 @@
+# Final domain knowledge check across all six sections.
+schema_version: 1
+kind: question_bank
+id: ats041-final
+course_id: ATS041
+exam_code: KCSA
+status: draft
+provenance: Original practice material written for this course; not official exam questions.
+scope:
+  type: domain
+  id: final
+  title: Final Domain Quiz
+questions:
+- id: ats041-final-q01
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Identify the asset and the responsibility at each of the four security layers
+  source_readings:
+  - sections/section-010/module-01/course-01-the-four-layers-and-their-trust-relationships.md
+  prompt: A company runs a Kubernetes cluster on virtual machines rented from a public cloud provider. An administrator at the company asks who must restrict which identities may delete or replace the worker machines. Which statement is correct?
+  options:
+  - id: a
+    text: The provider alone, because it operates the data center and the hypervisor.
+    explanation: The provider secures the services it operates, but the customer sets who may use the account and the machines.
+  - id: b
+    text: The Kubernetes API server, because it schedules all pods onto the machines.
+    explanation: The API server governs Kubernetes objects. It does not control the cloud account that manages machines.
+  - id: c
+    text: The customer, who configures the cloud account permissions under the shared responsibility model.
+    explanation: Correct. The customer configures account permissions and network exposure. The contract states where the provider's part ends.
+  - id: d
+    text: The application developer, because only the code layer can limit machine access.
+    explanation: Code controls cannot limit cloud account permissions.
+  correct_option: c
+  explanation: The customer configures account permissions and network exposure. The contract states where the provider's part ends.
+- id: ats041-final-q02
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Explain how a failure in an outer layer can undermine the controls of an inner layer
+  source_readings:
+  - sections/section-010/module-01/course-01-the-four-layers-and-their-trust-relationships.md
+  prompt: An attacker gains administrator access to the node that runs the `scout` pod. The cluster has strict RBAC, and the pod runs with a restricted securityContext. Which statement best describes the effect?
+  options:
+  - id: a
+    text: The restricted securityContext still fully protects the application, because it is enforced inside the container.
+    explanation: Container settings are enforced by the node's runtime and kernel. A node administrator controls both.
+  - id: b
+    text: The RBAC rules and the securityContext can be bypassed, because they depend on the node and its kernel being trustworthy.
+    explanation: Correct. Each layer trusts the one below. A compromised node lets the attacker act below the controls that run on it.
+  - id: c
+    text: Only availability is affected, because RBAC protects confidentiality on every node.
+    explanation: Node access also threatens confidentiality and integrity, for example through pod data and credentials.
+  - id: d
+    text: Nothing changes, because the control groups of the container block the node administrator.
+    explanation: Control groups limit resource use of a process. They do not restrict the node's own administrator.
+  correct_option: b
+  explanation: Each layer trusts the one below. A compromised node lets the attacker act below the controls that run on it.
+- id: ats041-final-q03
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Read a pod specification and name which fields belong to the cluster layer and which to the container layer
+  source_readings:
+  - sections/section-010/module-01/course-02-cluster-and-container-controls-in-a-pod.md
+  prompt: 'A review lists four pod settings: `automountServiceAccountToken`, `privileged`, `serviceAccountName` and a `hostPath` volume. Which pair of settings is decided mostly by the container runtime''s isolation of the process from the node?'
+  options:
+  - id: a
+    text: "`automountServiceAccountToken` and `serviceAccountName`"
+    explanation: These two decide which cluster credential the pod gets. They are cluster-layer settings.
+  - id: b
+    text: "`serviceAccountName` and `hostPath`"
+    explanation: "`serviceAccountName` is a cluster-layer identity setting."
+  - id: c
+    text: "`automountServiceAccountToken` and `hostPath`"
+    explanation: "`automountServiceAccountToken` is a cluster-layer setting."
+  - id: d
+    text: "`privileged` and `hostPath`"
+    explanation: Correct. Privileged mode and host mounts decide how far the process reaches into the node, so they belong to the container layer.
+  correct_option: d
+  explanation: Privileged mode and host mounts decide how far the process reaches into the node, so they belong to the container layer.
+- id: ats041-final-q04
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Explain shared responsibility for managed and self-managed infrastructure and name who owns a given control
+  source_readings:
+  - sections/section-020/module-01/course-01-shared-responsibility-and-infrastructure-access.md
+  prompt: A company runs its workloads on a managed Kubernetes service. The provider keeps the API server patched. An attacker uses a leaked build credential that has administrator rights on the whole cluster to change running workloads. Whose control failed?
+  options:
+  - id: a
+    text: The provider's, because it runs the control plane and must prevent every misuse of it.
+    explanation: The provider patches the control plane. It does not decide which customer identities hold administrator rights.
+  - id: b
+    text: The customer's, because choosing which identities have which permissions stays with the customer in every service model.
+    explanation: Correct. A managed control plane transfers patching duties. The customer still owns identity scoping, so a credential with excessive rights is a customer-side gap.
+  - id: c
+    text: Nobody's, because a valid credential makes any action legitimate.
+    explanation: A valid credential makes the request authorized. It does not make the grant of such broad rights acceptable.
+  - id: d
+    text: The cloud provider's physical security, because credentials are stored in its data center.
+    explanation: Physical security protects the facilities and hardware, not the permissions the customer grants.
+  correct_option: b
+  explanation: A managed control plane transfers patching duties to the provider. The customer always owns which identities may act and with what permissions.
+- id: ats041-final-q05
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Describe how a workload obtains an identity and when it should not receive one
+  source_readings:
+  - sections/section-020/module-01/course-02-workload-identity-and-blast-radius.md
+  prompt: The `scout` Deployment serves HTTP and never calls the Kubernetes API. A reviewer wants to remove the credential that the pods receive by default. Which change does that?
+  options:
+  - id: a
+    text: Delete the service account `scout`; existing pods then lose their token immediately.
+    explanation: Deleting the service account does not remove the token from the running pods, and new pods fail to be created.
+  - id: b
+    text: Add a `NetworkPolicy` that blocks egress to the API server.
+    explanation: A network policy limits traffic. The token is still mounted and can be used from elsewhere.
+  - id: c
+    text: Remove all Roles in the namespace; the token then disappears from the pods.
+    explanation: Roles define permissions. The token is mounted whether or not any Role exists.
+  - id: d
+    text: 'Set `automountServiceAccountToken: false` in the pod template and let the rollout replace the pods.'
+    explanation: Correct. The kubelet then does not add the projected token volume to the new pods. The old pods keep their token until they are replaced.
+  correct_option: d
+  explanation: "`automountServiceAccountToken: false` in the pod template stops the token volume in new pods, and the rollout must finish before old pods lose theirs."
+- id: ats041-final-q06
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Explain how the instance metadata service exposes credentials and how to restrict access to it
+  source_readings:
+  - sections/section-020/module-01/course-03-instance-metadata-and-egress.md
+  prompt: An application in a pod has a server-side request forgery flaw. An attacker makes it fetch `http://169.254.169.254/` and reads the response. Why is this dangerous on a cloud node?
+  options:
+  - id: a
+    text: The address belongs to the instance metadata service, which can return the node's role credentials to any HTTP caller on the machine, including pods.
+    explanation: Correct. The service trusts the network path, so a request from a pod can obtain the credentials of the node's cloud role.
+  - id: b
+    text: The address is the Kubernetes API server, which accepts requests without authentication.
+    explanation: The API server does not use this address. The metadata service belongs to the cloud provider.
+  - id: c
+    text: The address is the cluster DNS Service, so the attacker can rewrite every name.
+    explanation: Cluster DNS has a cluster IP address, and a lookup response does not give credentials.
+  - id: d
+    text: The address is etcd, and the response contains the stored Secrets.
+    explanation: etcd is not served on this address and needs client certificates.
+  correct_option: a
+  explanation: The instance metadata service answers at a link-local address and can return the node's role credentials to any caller on the machine.
+- id: ats041-final-q07
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Compare preventive, detective and corrective controls
+  source_readings:
+  - sections/section-030/module-01/course-01-from-a-security-goal-to-a-verifiable-control.md
+  prompt: 'A namespace has the label `pod-security.kubernetes.io/warn: baseline` and no `enforce` label. A user creates a pod with a privileged container. The user sees a warning and the pod is created. What kind of control did the label provide?'
+  options:
+  - id: a
+    text: A preventive control, because the API server noticed the violation.
+    explanation: A preventive control stops the action. The pod was created.
+  - id: b
+    text: A detective control, because the violation was reported and the pod was still admitted.
+    explanation: Correct. The `warn` mode reports a violation to the client and admits the pod, so it detects and does not prevent.
+  - id: c
+    text: A corrective control, because it restored a good state.
+    explanation: A corrective control limits damage or restores a state after the action. Nothing was restored.
+  - id: d
+    text: No control, because the label has no effect without a policy engine.
+    explanation: Pod Security Admission is built into the API server and needs no policy engine.
+  correct_option: b
+  explanation: The `warn` mode reports a violation and admits the pod, so it is a detective control. Only `enforce` prevents.
+- id: ats041-final-q08
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Explain how a framework differs from a benchmark
+  source_readings:
+  - sections/section-030/module-01/course-02-frameworks-benchmarks-and-evidence.md
+  prompt: An auditor asks the platform team for a list of specific configuration checks for Kubernetes, each with an audit step and a remediation step. Which kind of document answers this request?
+  options:
+  - id: a
+    text: The NIST Cybersecurity Framework, because it lists the exact flags of every Kubernetes component.
+    explanation: The framework organizes functions and control goals. It does not list product flags.
+  - id: b
+    text: STRIDE, because it ranks the configuration checks by risk.
+    explanation: STRIDE is a threat modeling method. It is not a list of configuration checks.
+  - id: c
+    text: The CIS Kubernetes Benchmark, because it lists configuration checks with audit and remediation steps.
+    explanation: Correct. A benchmark gives detailed, checkable configuration recommendations for one product.
+  - id: d
+    text: PCI DSS, because it applies to every Kubernetes cluster.
+    explanation: PCI DSS is a standard for organizations that handle payment card data. It does not apply to every cluster.
+  correct_option: c
+  explanation: A framework sets goals and a benchmark lists specific configuration checks. The CIS Kubernetes Benchmark is the benchmark for Kubernetes.
+- id: ats041-final-q09
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Match a scenario to a STRIDE threat category
+  source_readings:
+  - sections/section-030/module-01/course-03-threat-modeling-and-residual-risk.md
+  prompt: A developer has a role that allows `update` on Deployments in every namespace. The developer changes the image of a production Deployment to an image that the developer built. Which STRIDE category describes this threat?
+  options:
+  - id: a
+    text: Tampering, because the integrity of the Deployment was changed through an overly broad permission.
+    explanation: Correct. Changing a stored object without a legitimate reason breaks integrity, which is tampering.
+  - id: b
+    text: Spoofing, because the developer pretended to be another user.
+    explanation: The developer used a real identity. Spoofing needs a false identity.
+  - id: c
+    text: Repudiation, because the change has no owner.
+    explanation: Repudiation means that an action cannot be proven. Nothing in the scenario says the change is unlogged.
+  - id: d
+    text: Denial of service, because the Deployment restarted.
+    explanation: A restart is a side effect. The threat is the unauthorized change.
+  correct_option: a
+  explanation: An unauthorized change to a stored object breaks integrity, which STRIDE calls tampering. Role-based access control is the matching control.
+- id: ats041-final-q10
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Separate what a namespace hides from what a cgroup limits
+  source_readings:
+  - sections/section-040/module-01/course-01-process-isolation-and-its-security-limits.md
+  prompt: A pod sets `resources.limits.memory`. Which kernel feature enforces that limit on the container?
+  options:
+  - id: a
+    text: A PID namespace, which gives the container its own process list.
+    explanation: A PID namespace controls which processes the container can see. It does not limit memory use.
+  - id: b
+    text: A seccomp profile, which filters system calls.
+    explanation: A seccomp profile filters system calls. It does not count memory.
+  - id: c
+    text: A control group (cgroup), which limits and counts the resource use of the processes.
+    explanation: Correct. The kubelet and the container runtime write the limit into the cgroup of the container.
+  - id: d
+    text: A user namespace, which maps user identifiers.
+    explanation: A user namespace maps user identifiers. It does not limit memory.
+  correct_option: c
+  explanation: The kubelet and the container runtime write the limit into the cgroup of the container.
+- id: ats041-final-q11
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Explain what containers on one node share
+  source_readings:
+  - sections/section-040/module-01/course-01-process-isolation-and-its-security-limits.md
+  prompt: Two containers from different pods run on the same worker node. What do they share?
+  options:
+  - id: a
+    text: The process list, because both run on one node.
+    explanation: Each container has its own PID namespace, so the process lists are separate.
+  - id: b
+    text: The node kernel, because a container has no kernel of its own.
+    explanation: Correct. Every container sends its system calls to the same kernel, so a kernel flaw can affect all of them.
+  - id: c
+    text: The root file system, because both use the same image format.
+    explanation: Each container has its own mount namespace built from its own image.
+  - id: d
+    text: Nothing, because each container is a small virtual machine.
+    explanation: A container is not a virtual machine and has no guest kernel.
+  correct_option: b
+  explanation: Every container sends its system calls to the same kernel, so a kernel flaw can affect all of them.
+- id: ats041-final-q12
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Identify what a Kubernetes namespace does not isolate
+  source_readings:
+  - sections/section-040/module-01/course-02-segmentation-across-workloads-and-identities.md
+  prompt: A pod in the namespace `outpost` calls a Service in the namespace `starfleet` and gets a response. No NetworkPolicy exists. Why does the request succeed?
+  options:
+  - id: a
+    text: Services ignore namespaces.
+    explanation: The name of a Service includes its namespace, so this is not the reason.
+  - id: b
+    text: The pod uses a service account with wide rights.
+    explanation: A service account does not decide whether a network packet is delivered.
+  - id: c
+    text: The namespace `outpost` has no quota.
+    explanation: A quota limits resource use and has no effect on network traffic.
+  - id: d
+    text: A Kubernetes namespace scopes names and does not block traffic by itself, and by default every pod accepts traffic from every pod.
+    explanation: Correct. A NetworkPolicy enforced by the network plugin changes that default.
+  correct_option: d
+  explanation: A NetworkPolicy enforced by the network plugin changes that default.
+- id: ats041-final-q13
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Explain how a pod receives registry credentials and why they need protection
+  source_readings:
+  - sections/section-050/module-01/course-01-credentials-and-image-verification-evidence.md
+  prompt: A private registry holds the image `registry.starfleet.example/fleet/hauler:2.4`. Fifteen Deployments in the namespace `dockyard` run as the service account `hauler`. The platform team wants every Deployment to pull the image without editing each one. What is the correct design?
+  options:
+  - id: a
+    text: Create a Secret of type `kubernetes.io/dockerconfigjson` in the `starfleet` namespace and reference it from the Deployments in `dockyard`.
+    explanation: A pod can only reference pull secrets in its own namespace, so a Secret in another namespace is not found.
+  - id: b
+    text: Create a Secret of type `kubernetes.io/dockerconfigjson` in `dockyard` and list it in `imagePullSecrets` of the service account `hauler`.
+    explanation: Correct. The pull secret must be in the pod's namespace. The ServiceAccount admission controller copies the service account's `imagePullSecrets` into each new pod, so the Deployments need no change.
+  - id: c
+    text: Create an `Opaque` Secret in `dockyard` that holds the password and mount it into each container.
+    explanation: The kubelet does not read a mounted file to log in to a registry; it reads the `imagePullSecrets` of the pod.
+  - id: d
+    text: Add the registry password as an environment variable in the image.
+    explanation: Putting a credential in an image exposes it to everyone who can pull the image.
+  correct_option: b
+  explanation: The pull secret lives in the pod's namespace, and listing it on the service account delivers it to every new pod that uses the account.
+- id: ats041-final-q14
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Distinguish digests, signatures, provenance, SBOMs and scans
+  source_readings:
+  - sections/section-050/module-01/course-01-credentials-and-image-verification-evidence.md
+  prompt: A security review finds an image with a valid signature from the company build pipeline. A scanner later reports a critical vulnerability in a library inside the same digest. A manager says the image is safe because it is signed. What is the best answer?
+  options:
+  - id: a
+    text: The signature proves that the build was free of defects, so the scanner result is a false alarm.
+    explanation: A signature does not make any statement about defects in the code.
+  - id: b
+    text: The scan result replaces the signature, so the image is no longer trusted for its origin.
+    explanation: The scan reports a component problem. It does not change who signed the digest.
+  - id: c
+    text: The signature shows who vouches for this digest, the scan shows a known problem in its components, and the library still needs to be fixed.
+    explanation: 'Correct. The two pieces of evidence answer different questions: who vouches for the content, and which known problems the components have.'
+  - id: d
+    text: The software bill of materials proves that the library is not used.
+    explanation: An SBOM lists components. It does not show whether a library is used or safe.
+  correct_option: c
+  explanation: A signature proves who signed a digest. A scan reports known problems in the components. One passed check does not cover the other question.
+- id: ats041-final-q15
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Explain why a tag is not an identity and pin a Deployment to a digest
+  source_readings:
+  - sections/section-050/module-01/course-02-repository-policy-and-the-deployed-artifact.md
+  prompt: A team approved `ghcr.io/stefanprodan/podinfo:6.15.0` on Monday after a review. On Friday the same tag in the registry points to different content because someone pushed a new image under the tag. Which reference lets the Deployment run exactly the reviewed content?
+  options:
+  - id: a
+    text: The repository followed by `@` and the digest that was reviewed.
+    explanation: Correct. A digest is the hash of the image manifest, so it cannot point to other content.
+  - id: b
+    text: 'The same tag with `imagePullPolicy: IfNotPresent`.'
+    explanation: The pull policy decides when to ask the registry. A node that has no copy still pulls whatever the tag points to.
+  - id: c
+    text: 'The same tag with `imagePullPolicy: Always`.'
+    explanation: "`Always` makes the kubelet ask the registry again, and the registry then answers with the new content behind the tag."
+  - id: d
+    text: The tag `latest`, because it is always the newest reviewed image.
+    explanation: "`latest` is a movable tag and gives no information about what was reviewed."
+  correct_option: a
+  explanation: A digest names exact content. Tags can be moved, and the pull policy does not change what a tag points to.
+- id: ats041-final-q16
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Tell apart what the platform checks and what the application code must check
+  source_readings:
+  - sections/section-060/module-01/course-01-protecting-application-inputs-data-and-dependencies.md
+  prompt: A `scout` API returns the order of any id that a logged-in caller sends in the URL. A tester logs in as one user and reads the order of another user by changing the id. The cluster has strict RBAC and a Pod Security level of restricted. Where is the flaw and who must fix it?
+  options:
+  - id: a
+    text: The Kubernetes RBAC rules, because RBAC decides which user may read an order.
+    explanation: RBAC controls access to the Kubernetes API, not to rows in the application's own data.
+  - id: b
+    text: The application code, which authenticates the caller but does not check that the caller may read that order. The code must apply authorization on every request.
+    explanation: Correct. Authentication proves who the caller is. Authorization decides what that caller may do, and only the code knows the business rule for an order.
+  - id: c
+    text: The Pod Security level, which must be raised to stop one user reading another user's data.
+    explanation: Pod Security limits the pod's settings on the node. It does not see application requests.
+  - id: d
+    text: The container runtime, which must filter the request before the application receives it.
+    explanation: A runtime does not know the business rule, so it cannot filter this request.
+  correct_option: b
+  explanation: Platform controls do not replace authorization in the application. The code must check authorization for each object on each request.
+- id: ats041-final-q17
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Explain injection and where input must be validated
+  source_readings:
+  - sections/section-060/module-01/course-01-protecting-application-inputs-data-and-dependencies.md
+  prompt: A service builds a database query by joining a user-supplied name into the query string. A caller sends a name that contains query syntax and reads other records. Which change fixes the cause?
+  options:
+  - id: a
+    text: Put the service behind a NetworkPolicy that only allows the front end.
+    explanation: A NetworkPolicy limits connections but the request from the allowed front end still carries the input.
+  - id: b
+    text: 'Run the container with `readOnlyRootFilesystem: true`.'
+    explanation: A read-only file system does not change how the query string is built.
+  - id: c
+    text: Pass the value as a parameter of a prepared query, so the database treats it as data and never as part of the command.
+    explanation: Correct. Injection happens when untrusted input becomes part of a command. Parameters keep data and command apart.
+  - id: d
+    text: Hide the error messages, so the caller cannot see that the query broke.
+    explanation: Hiding errors may slow an attacker but does not remove the flaw.
+  correct_option: c
+  explanation: 'Injection is fixed where the command is built: separate the data from the command and validate the input on the server side.'
+- id: ats041-final-q18
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Choose how a workload receives a credential and see who may read it
+  source_readings:
+  - sections/section-060/module-01/course-02-delivering-credentials-to-a-workload.md
+  prompt: A team stores a database password as a literal `value` in the pod template of a Deployment. Which statement is correct and what is the better design?
+  options:
+  - id: a
+    text: The literal is safe, because the pod template is only readable by the cluster administrator.
+    explanation: Users with read access to Deployments, and tools that export manifests, see the value.
+  - id: b
+    text: Anyone who can read the Deployment can read the password. Store it in a Secret and reference it with `secretKeyRef` or a Secret volume, and limit who may `get` and `list` Secrets with RBAC.
+    explanation: Correct. A Secret separates the credential from the workload definition, and RBAC then controls who reads it. The list and watch verbs also return the Secret values.
+  - id: c
+    text: Base64 encoding the literal in the template protects it from readers.
+    explanation: Base64 is an encoding and not encryption. Anyone can decode it.
+  - id: d
+    text: Moving it to a ConfigMap protects it, because ConfigMaps are encrypted.
+    explanation: A ConfigMap is for non-sensitive data and is not encrypted.
+  correct_option: b
+  explanation: Keep credentials out of manifests. Use a Secret, deliver it by reference, and restrict read access with RBAC.

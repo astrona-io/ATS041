@@ -1,0 +1,20 @@
+# An over-privileged pipeline identity, there on purpose: the service account
+# build-runner is bound to cluster-admin by a ClusterRoleBinding.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: build-runner
+  namespace: starfleet
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: build-runner-admin
+subjects:
+  - kind: ServiceAccount
+    name: build-runner
+    namespace: starfleet
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin

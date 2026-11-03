@@ -1,0 +1,66 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Cloud Provider and Infrastructure Security Capstone (LAB). Graded against the live cluster.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-041-capstone-020
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - curlimages/curl:8.22.0
+
+# Starting state: the outpost namespace with an over-privileged workload
+# identity, a token mount, a host path Deployment, anonymous view access, no
+# NetworkPolicy and no Pod Security label.
+bootstrap:
+  init:
+    - name: seed-cluster
+      description: Create the outpost workloads and the exposure objects
+      type: file
+      source: bootstrap/01-seed-cluster.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+
+validation:
+  scripts:
+    - name: drifter-token-removed
+      description: drifter runs without a service account token
+      type: file
+      source: validation/validate-drifter-token-removed.sh
+      hint: Set automountServiceAccountToken to false in the drifter pod template and wait for the rollout. The Deployment must stay available.
+    - name: drifter-least-privilege
+      description: drifter is not cluster-admin and may read ConfigMaps in outpost only
+      type: file
+      source: validation/validate-drifter-least-privilege.sh
+      hint: Delete the ClusterRoleBinding drifter-admin. Add a Role in outpost that allows get and list on configmaps and bind it to the service account drifter.
+    - name: metadata-egress-blocked
+      description: A NetworkPolicy in outpost blocks 169.254.169.254 and allows other egress
+      type: file
+      source: validation/validate-metadata-egress-blocked.sh
+      hint: Select all pods, set policyTypes to Egress, and allow ipBlock 0.0.0.0/0 with an except entry for 169.254.169.254/32.
+    - name: anonymous-access-removed
+      description: Unauthenticated callers cannot read pods
+      type: file
+      source: validation/validate-anonymous-access-removed.sh
+      hint: Delete the ClusterRoleBinding that gives the view role to system:unauthenticated. Keep the built-in public-info-viewer binding.
+    - name: outpost-node-boundary
+      description: outpost enforces baseline and no workload mounts a host path
+      type: file
+      source: validation/validate-outpost-node-boundary.sh
+      hint: Delete the drifter-hostmount Deployment and label outpost pod-security.kubernetes.io/enforce=baseline. The drifter Deployment must keep running.
+
+teardown:
+  keepCluster: false

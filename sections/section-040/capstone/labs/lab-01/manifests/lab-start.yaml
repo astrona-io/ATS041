@@ -1,0 +1,105 @@
+# Starting state: `scribe` (go-httpbin, container port 8080) and `courier`
+# (curl client) in `annex`. `courier` shares the node network and PID
+# namespaces, runs a privileged container with a host directory mounted and
+# gets a service account token. Nothing segments the namespace.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: annex
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: scribe
+  namespace: annex
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: courier
+  namespace: annex
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: scribe
+  namespace: annex
+  labels:
+    app: scribe
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: scribe
+  template:
+    metadata:
+      labels:
+        app: scribe
+    spec:
+      serviceAccountName: scribe
+      containers:
+        - name: scribe
+          image: mccutchen/go-httpbin:2.25.0
+          ports:
+            - name: http
+              containerPort: 8080
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 64Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: scribe
+  namespace: annex
+spec:
+  selector:
+    app: scribe
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: courier
+  namespace: annex
+  labels:
+    app: courier
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: courier
+  template:
+    metadata:
+      labels:
+        app: courier
+    spec:
+      serviceAccountName: courier
+      hostNetwork: true
+      hostPID: true
+      containers:
+        - name: courier
+          image: curlimages/curl:8.22.0
+          command: ["sh", "-c", "while true; do sleep 30; done"]
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: host-run
+              mountPath: /host-run
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 32Mi
+      volumes:
+        - name: host-run
+          hostPath:
+            path: /var/log
+            type: Directory

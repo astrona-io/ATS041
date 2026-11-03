@@ -1,0 +1,10 @@
+# Reference solution: Pod Security labels on outpost. enforce blocks,
+# audit and warn report. The pod removal and the rollback are in apply.sh.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: outpost
+  labels:
+    pod-security.kubernetes.io/enforce: baseline
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/warn: restricted

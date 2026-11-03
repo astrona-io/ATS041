@@ -1,0 +1,52 @@
+# Reference solution: pull credentials, the loader service account and a
+# digest-required policy bound to shipyard.
+apiVersion: v1
+kind: Secret
+metadata:
+  name: registry-creds
+  namespace: shipyard
+type: kubernetes.io/dockerconfigjson
+stringData:
+  .dockerconfigjson: |
+    {"auths":{"registry.starfleet.example":{"username":"cargo-puller","password":"s3al-pull-4410"}}}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: loader
+  namespace: shipyard
+imagePullSecrets:
+  - name: registry-creds
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: require-image-digest
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: ["CREATE", "UPDATE"]
+        resources: ["pods"]
+  variables:
+    - name: images
+      expression: >-
+        object.spec.containers.map(c, c.image) +
+        (has(object.spec.initContainers) ? object.spec.initContainers.map(c, c.image) : [])
+  validations:
+    - expression: "variables.images.all(i, i.matches('@sha256:[0-9a-f]{64}$'))"
+      message: "Every image must be referenced by digest (repository@sha256:...)."
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: require-image-digest-shipyard
+spec:
+  policyName: require-image-digest
+  validationActions: ["Deny"]
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        kubernetes.io/metadata.name: shipyard

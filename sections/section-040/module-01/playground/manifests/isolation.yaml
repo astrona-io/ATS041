@@ -1,0 +1,84 @@
+# Two extra workloads that show what a pod can share with its neighbours and
+# with the node. `crew-share` has two containers in one shared process
+# namespace. `relay` runs with hostPID, so it sees the processes of the node.
+# Both are ungraded and exist only to look at.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: crew-share
+  namespace: starfleet
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: relay
+  namespace: outpost
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crew-share
+  namespace: starfleet
+  labels:
+    app: crew-share
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: crew-share
+  template:
+    metadata:
+      labels:
+        app: crew-share
+    spec:
+      serviceAccountName: crew-share
+      shareProcessNamespace: true
+      containers:
+        - name: main
+          image: curlimages/curl:8.22.0
+          command: ["sh", "-c", "while true; do sleep 30; done"]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 32Mi
+        - name: side
+          image: curlimages/curl:8.22.0
+          command: ["sh", "-c", "while true; do sleep 31; done"]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 32Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: relay
+  namespace: outpost
+  labels:
+    app: relay
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: relay
+  template:
+    metadata:
+      labels:
+        app: relay
+    spec:
+      serviceAccountName: relay
+      hostPID: true
+      containers:
+        - name: relay
+          image: curlimages/curl:8.22.0
+          command: ["sh", "-c", "while true; do sleep 30; done"]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 32Mi

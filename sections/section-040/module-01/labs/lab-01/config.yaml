@@ -1,0 +1,66 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Isolation And Containment Boundaries (LAB). Graded against the live cluster.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-041-lab-040-01
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - curlimages/curl:8.22.0
+
+# Starting state: the `relay` Deployment in `outpost` runs with host
+# namespaces, a privileged container, a hostPath volume and an automatically
+# mounted service account token. The faults are left in place on purpose.
+bootstrap:
+  init:
+    - name: seed-cluster
+      description: Create the outpost namespace and the over-privileged relay Deployment
+      type: file
+      source: bootstrap/01-seed-cluster.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+
+validation:
+  scripts:
+    - name: host-namespaces-off
+      description: The relay pod template does not share the host PID, network or IPC namespace
+      type: file
+      source: validation/validate-host-namespaces-off.sh
+      hint: Remove hostPID, hostNetwork and hostIPC from the pod template, or set each to false.
+    - name: container-not-privileged
+      description: The relay container is unprivileged, cannot escalate and drops all capabilities
+      type: file
+      source: validation/validate-container-not-privileged.sh
+      hint: In the container securityContext set privileged to false, allowPrivilegeEscalation to false and capabilities drop to ALL. Do not add capabilities back.
+    - name: no-host-path
+      description: The relay pod template has no hostPath volume and no mount of one
+      type: file
+      source: validation/validate-no-host-path.sh
+      hint: Delete the hostPath volume and the volumeMount that uses it. Do not replace it with another host-backed volume.
+    - name: token-not-mounted
+      description: The relay pods do not receive a service account token
+      type: file
+      source: validation/validate-token-not-mounted.sh
+      hint: Set automountServiceAccountToken to false in the pod template (or on the relay service account).
+    - name: relay-running-hardened
+      description: The relay Deployment is rolled out and its running pod has the hardened settings
+      type: file
+      source: validation/validate-relay-running-hardened.sh
+      hint: Keep the Deployment name, the app=relay label, the curl image and a read-only root filesystem, then wait for the rollout to finish.
+
+teardown:
+  keepCluster: false

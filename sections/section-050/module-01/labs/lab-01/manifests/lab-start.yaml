@@ -1,0 +1,66 @@
+# Namespace dockyard: a relay Deployment that uses a mutable tag, a hauler
+# Deployment on a service account without a pull secret, and the release record.
+# Both Deployments are scaled to zero on purpose: their images are not pulled.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dockyard
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: hauler
+  namespace: dockyard
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: release-record
+  namespace: dockyard
+data:
+  relay-digest: sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: relay
+  namespace: dockyard
+  labels:
+    app: relay
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      app: relay
+  template:
+    metadata:
+      labels:
+        app: relay
+    spec:
+      containers:
+        - name: relay
+          image: ghcr.io/stefanprodan/podinfo:latest
+          ports:
+            - containerPort: 9898
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hauler
+  namespace: dockyard
+  labels:
+    app: hauler
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      app: hauler
+  template:
+    metadata:
+      labels:
+        app: hauler
+    spec:
+      serviceAccountName: hauler
+      containers:
+        - name: hauler
+          image: registry.starfleet.example/fleet/hauler:2.4

@@ -1,0 +1,9 @@
+# Reference solution: the three Pod Security labels on starfleet.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: starfleet
+  labels:
+    pod-security.kubernetes.io/enforce: baseline
+    pod-security.kubernetes.io/warn: restricted
+    pod-security.kubernetes.io/audit: restricted

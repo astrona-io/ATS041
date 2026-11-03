@@ -1,0 +1,146 @@
+# Starting state of the capstone: scout in starfleet, the new team namespace
+# orbit with a relay Deployment (no memory limit, token mounted) and a
+# privileged beacon-debug Deployment, an empty outpost, and the policy
+# require-memory-limits with no binding.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: starfleet
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: outpost
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: orbit
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: scout
+  namespace: starfleet
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: scout
+  namespace: starfleet
+  labels:
+    app: scout
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: scout
+  template:
+    metadata:
+      labels:
+        app: scout
+    spec:
+      serviceAccountName: scout
+      containers:
+        - name: scout
+          image: ghcr.io/stefanprodan/podinfo:6.15.0
+          ports:
+            - name: http
+              containerPort: 9898
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              memory: 64Mi
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: relay
+  namespace: orbit
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: relay
+  namespace: orbit
+  labels:
+    app: relay
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: relay
+  template:
+    metadata:
+      labels:
+        app: relay
+    spec:
+      serviceAccountName: relay
+      containers:
+        - name: relay
+          image: ghcr.io/stefanprodan/podinfo:6.15.0
+          ports:
+            - name: http
+              containerPort: 9898
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: beacon-debug
+  namespace: orbit
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: beacon-debug
+  namespace: orbit
+  labels:
+    app: beacon-debug
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: beacon-debug
+  template:
+    metadata:
+      labels:
+        app: beacon-debug
+    spec:
+      serviceAccountName: beacon-debug
+      containers:
+        - name: beacon-debug
+          image: curlimages/curl:8.22.0
+          command: ["sleep", "infinity"]
+          securityContext:
+            privileged: true
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: require-memory-limits
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: ["apps"]
+        apiVersions: ["v1"]
+        operations: ["CREATE", "UPDATE"]
+        resources: ["deployments"]
+  validations:
+    - expression: "object.spec.template.spec.containers.all(c, has(c.resources) && has(c.resources.limits) && 'memory' in c.resources.limits)"
+      message: "Every container must set resources.limits.memory."
+      reason: Invalid

@@ -1,0 +1,73 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Enforcing Controls With Admission Policy (LAB). Graded against the live cluster.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-041-lab-030-02
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - ghcr.io/stefanprodan/podinfo:6.15.0
+      - mccutchen/go-httpbin:2.25.0
+      - curlimages/curl:8.22.0
+
+# Starting state: the Starfleet workloads (probe has no memory limit), the
+# policy require-memory-limits with a wrong expression, and a binding that
+# only warns and selects no namespace.
+bootstrap:
+  init:
+    - name: seed-cluster
+      description: Create the workloads, the policy and the binding
+      type: file
+      source: bootstrap/01-seed-cluster.sh
+
+# Applied only by `astrona test`: the reference solution, then a wait until the
+# API server uses the new policy.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+    - name: wait-for-policy
+      description: Wait until the API server rejects a Deployment without a limit
+      type: file
+      source: testing/wait-for-policy.sh
+
+validation:
+  scripts:
+    - name: binding-denies
+      description: The binding uses the Deny action
+      type: file
+      source: validation/validate-binding-denies.sh
+      hint: Set validationActions on the binding to include Deny. Deny and Warn cannot be used together, so replace Warn.
+    - name: starfleet-rejects-missing-limits
+      description: A Deployment without a memory limit is rejected in starfleet
+      type: file
+      source: validation/validate-starfleet-rejects.sh
+      hint: The binding must select starfleet. Label the namespace with the key and value the binding selector uses, and wait a few seconds.
+    - name: policy-checks-limits-not-requests
+      description: A Deployment with only a limit is accepted and one with only a request is rejected
+      type: file
+      source: validation/validate-limits-not-requests.sh
+      hint: The expression must read resources.limits and the key memory. It reads resources.requests now.
+    - name: outpost-unaffected
+      description: outpost is not in the scope of the control
+      type: file
+      source: validation/validate-outpost-unaffected.sh
+      hint: Do not label outpost and do not widen the selector to every namespace.
+    - name: probe-complies-and-runs
+      description: probe has a memory limit and every workload is available
+      type: file
+      source: validation/validate-probe-complies.sh
+      hint: Add resources.limits.memory to the probe container. Do not delete or scale down a Deployment.
+
+teardown:
+  keepCluster: false

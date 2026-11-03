@@ -1,0 +1,68 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Security Across Cloud, Cluster, Container And Code (LAB). Graded against the live cluster.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-041-lab-010-01
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - ghcr.io/stefanprodan/podinfo:6.15.0
+      - mccutchen/go-httpbin:2.25.0
+      - curlimages/curl:8.22.0
+
+# Starting state: the Starfleet workloads, a shuttle service account bound to
+# cluster-admin, and a privileged scout with a host path mount. The weaknesses
+# are left in place on purpose.
+bootstrap:
+  init:
+    - name: seed-cluster
+      description: Create the workloads and the weaknesses
+      type: file
+      source: bootstrap/01-seed-cluster.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+
+validation:
+  scripts:
+    - name: shuttle-cluster-admin-removed
+      description: shuttle is not bound to cluster-admin
+      type: file
+      source: validation/validate-shuttle-cluster-admin-removed.sh
+      hint: Find the ClusterRoleBinding that names shuttle and delete it. Keep the service account.
+    - name: shuttle-token-not-mounted
+      description: shuttle pods get no API token
+      type: file
+      source: validation/validate-shuttle-token-not-mounted.sh
+      hint: Set automountServiceAccountToken to false in the pod template of the shuttle Deployment and let it roll out.
+    - name: scout-hardened
+      description: scout is not privileged and mounts no host path
+      type: file
+      source: validation/validate-scout-hardened.sh
+      hint: Remove privileged and the hostPath volume. Set allowPrivilegeEscalation false, drop ALL capabilities and run as a non-root user such as 100.
+    - name: scout-available
+      description: The hardened scout rolls out and is ready
+      type: file
+      source: validation/validate-scout-available.sh
+      hint: If the pod does not start, read the pod events. runAsNonRoot needs a numeric runAsUser other than 0.
+    - name: other-workloads-unchanged
+      description: probe and drifter run unchanged and no workload has cluster-admin
+      type: file
+      source: validation/validate-other-workloads-unchanged.sh
+      hint: Change only scout and shuttle. Do not move the cluster-admin grant to another service account.
+
+teardown:
+  keepCluster: false

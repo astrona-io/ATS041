@@ -1,0 +1,129 @@
+# Capstone starting state in `outpost`: the drifter client with a token and
+# cluster-admin, a Deployment that mounts a host path, a binding that gives the
+# view role to unauthenticated callers, no NetworkPolicy and no Pod Security
+# label. All of it is there on purpose.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: outpost
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: drifter
+  namespace: outpost
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: drifter-hostmount
+  namespace: outpost
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: outpost-settings
+  namespace: outpost
+data:
+  mode: patrol
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: outpost-key
+  namespace: outpost
+type: Opaque
+stringData:
+  token: sample-token-not-a-real-credential
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: drifter
+  namespace: outpost
+  labels:
+    app: drifter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: drifter
+  template:
+    metadata:
+      labels:
+        app: drifter
+    spec:
+      serviceAccountName: drifter
+      containers:
+        - name: drifter
+          image: curlimages/curl:8.22.0
+          command: ["sh", "-c", "while true; do sleep 30; done"]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 32Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: drifter-hostmount
+  namespace: outpost
+  labels:
+    app: drifter-hostmount
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: drifter-hostmount
+  template:
+    metadata:
+      labels:
+        app: drifter-hostmount
+    spec:
+      serviceAccountName: drifter-hostmount
+      containers:
+        - name: drifter-hostmount
+          image: curlimages/curl:8.22.0
+          command: ["sh", "-c", "while true; do sleep 30; done"]
+          volumeMounts:
+            - name: node-etc
+              mountPath: /node-etc
+              readOnly: true
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 32Mi
+      volumes:
+        - name: node-etc
+          hostPath:
+            path: /etc/kubernetes
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: drifter-admin
+subjects:
+  - kind: ServiceAccount
+    name: drifter
+    namespace: outpost
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: outpost-public-view
+subjects:
+  - kind: Group
+    name: system:unauthenticated
+    apiGroup: rbac.authorization.k8s.io
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: view

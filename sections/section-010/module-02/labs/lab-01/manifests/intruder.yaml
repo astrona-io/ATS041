@@ -1,0 +1,22 @@
+# Deliberate weakness for the lab: an unmanaged privileged pod in `outpost`.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: intruder
+  namespace: outpost
+  labels:
+    app: intruder
+spec:
+  serviceAccountName: drifter
+  containers:
+    - name: intruder
+      image: curlimages/curl:8.22.0
+      command: ["sh", "-c", "while true; do sleep 30; done"]
+      securityContext:
+        privileged: true
+      resources:
+        requests:
+          cpu: 10m
+          memory: 16Mi
+        limits:
+          memory: 32Mi

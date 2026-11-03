@@ -1,0 +1,55 @@
+# Starting state: `relay` in `outpost` shares the node's PID, network and IPC
+# namespaces, runs a privileged container, mounts a host directory and gets a
+# service account token. All of this is wrong for a client pod.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: outpost
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: relay
+  namespace: outpost
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: relay
+  namespace: outpost
+  labels:
+    app: relay
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: relay
+  template:
+    metadata:
+      labels:
+        app: relay
+    spec:
+      serviceAccountName: relay
+      hostPID: true
+      hostNetwork: true
+      hostIPC: true
+      containers:
+        - name: relay
+          image: curlimages/curl:8.22.0
+          command: ["sh", "-c", "while true; do sleep 30; done"]
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: host-logs
+              mountPath: /host-logs
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 32Mi
+      volumes:
+        - name: host-logs
+          hostPath:
+            path: /var/log
+            type: Directory

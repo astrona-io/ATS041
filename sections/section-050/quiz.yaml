@@ -1,0 +1,197 @@
+# Knowledge check for section 050. Listed in astrona.yaml as a `type: quiz` entry after the capstone lab.
+schema_version: 1
+kind: question_bank
+id: ats041-050
+course_id: ATS041
+exam_code: KCSA
+status: draft
+provenance: Original practice material written for this course; not official exam questions.
+scope:
+  type: section
+  id: section-050
+  title: "Artifact Repository and Image Security"
+questions:
+  - id: ats041-050-q01
+    type: single_choice
+    difficulty: beginner
+    learning_objective: "Explain how a pod receives registry credentials and why they need protection"
+    source_readings:
+      - sections/section-050/module-01/course-01-credentials-and-image-verification-evidence.md
+    prompt: "A private registry holds the image `registry.starfleet.example/fleet/hauler:2.4`. Fifteen Deployments in the namespace `dockyard` run as the service account `hauler`. The platform team wants every Deployment to pull the image without editing each one. What is the correct design?"
+    options:
+      - id: a
+        text: "Create a Secret of type `kubernetes.io/dockerconfigjson` in the `starfleet` namespace and reference it from the Deployments in `dockyard`."
+        explanation: "A pod can only reference pull secrets in its own namespace, so a Secret in another namespace is not found."
+      - id: b
+        text: "Create a Secret of type `kubernetes.io/dockerconfigjson` in `dockyard` and list it in `imagePullSecrets` of the service account `hauler`."
+        explanation: "Correct. The pull secret must be in the pod's namespace. The ServiceAccount admission controller copies the service account's `imagePullSecrets` into each new pod, so the Deployments need no change."
+      - id: c
+        text: "Create an `Opaque` Secret in `dockyard` that holds the password and mount it into each container."
+        explanation: "The kubelet does not read a mounted file to log in to a registry; it reads the `imagePullSecrets` of the pod."
+      - id: d
+        text: "Add the registry password as an environment variable in the image."
+        explanation: "Putting a credential in an image exposes it to everyone who can pull the image."
+    correct_option: b
+    explanation: "The pull secret lives in the pod's namespace, and listing it on the service account delivers it to every new pod that uses the account."
+
+  - id: ats041-050-q02
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Distinguish digests, signatures, provenance, SBOMs and scans"
+    source_readings:
+      - sections/section-050/module-01/course-01-credentials-and-image-verification-evidence.md
+    prompt: "A security review finds an image with a valid signature from the company build pipeline. A scanner later reports a critical vulnerability in a library inside the same digest. A manager says the image is safe because it is signed. What is the best answer?"
+    options:
+      - id: a
+        text: "The signature proves that the build was free of defects, so the scanner result is a false alarm."
+        explanation: "A signature does not make any statement about defects in the code."
+      - id: b
+        text: "The scan result replaces the signature, so the image is no longer trusted for its origin."
+        explanation: "The scan reports a component problem. It does not change who signed the digest."
+      - id: c
+        text: "The signature shows who vouches for this digest, the scan shows a known problem in its components, and the library still needs to be fixed."
+        explanation: "Correct. The two pieces of evidence answer different questions: who vouches for the content, and which known problems the components have."
+      - id: d
+        text: "The software bill of materials proves that the library is not used."
+        explanation: "An SBOM lists components. It does not show whether a library is used or safe."
+    correct_option: c
+    explanation: "A signature proves who signed a digest. A scan reports known problems in the components. One passed check does not cover the other question."
+
+  - id: ats041-050-q03
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Explain why a tag is not an identity and pin a Deployment to a digest"
+    source_readings:
+      - sections/section-050/module-01/course-02-repository-policy-and-the-deployed-artifact.md
+    prompt: "A team approved `ghcr.io/stefanprodan/podinfo:6.15.0` on Monday after a review. On Friday the same tag in the registry points to different content because someone pushed a new image under the tag. Which reference lets the Deployment run exactly the reviewed content?"
+    options:
+      - id: a
+        text: "The repository followed by `@` and the digest that was reviewed."
+        explanation: "Correct. A digest is the hash of the image manifest, so it cannot point to other content."
+      - id: b
+        text: "The same tag with `imagePullPolicy: IfNotPresent`."
+        explanation: "The pull policy decides when to ask the registry. A node that has no copy still pulls whatever the tag points to."
+      - id: c
+        text: "The same tag with `imagePullPolicy: Always`."
+        explanation: "`Always` makes the kubelet ask the registry again, and the registry then answers with the new content behind the tag."
+      - id: d
+        text: "The tag `latest`, because it is always the newest reviewed image."
+        explanation: "`latest` is a movable tag and gives no information about what was reviewed."
+    correct_option: a
+    explanation: "A digest names exact content. Tags can be moved, and the pull policy does not change what a tag points to."
+
+  - id: ats041-050-q04
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "State how `imagePullPolicy` is defaulted"
+    source_readings:
+      - sections/section-050/module-01/course-02-repository-policy-and-the-deployed-artifact.md
+    prompt: "A Deployment was created with the image `ghcr.io/stefanprodan/podinfo:latest` and no `imagePullPolicy`. Later an engineer changes the image to `ghcr.io/stefanprodan/podinfo@sha256:<64 hexadecimal characters>` with `kubectl set image`. What is the `imagePullPolicy` that the Deployment shows afterwards?"
+    options:
+      - id: a
+        text: "`IfNotPresent`, because a digest was set."
+        explanation: "The default is computed at creation. It is not recomputed when the image changes."
+      - id: b
+        text: "`Never`, because digests cannot be pulled again."
+        explanation: "`Never` is only used when it is set explicitly."
+      - id: c
+        text: "`Always`, because the API server recomputes the default each time the image changes."
+        explanation: "The API server does not recompute the default on a change, so the reason is wrong even though the value is `Always`."
+      - id: d
+        text: "`Always`, because the value was set when the object was created and is not updated when the image changes."
+        explanation: "Correct. The default is set once, when the object is first created, and a later change of tag or digest does not update it."
+    correct_option: d
+    explanation: "The default `imagePullPolicy` is set when the object is created and stays when the image changes."
+
+  - id: ats041-050-q05
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Explain what enters image layers and why deleting a file in a later layer does not remove it"
+    source_readings:
+      - sections/section-050/module-01/course-03-build-inputs-and-image-contents.md
+    prompt: "A Dockerfile copies the whole build directory into the image with `COPY . /app` and then runs `RUN rm /app/.env`. The directory contained a `.env` file with a database password, and the image was pushed to the registry. What is the correct conclusion?"
+    options:
+      - id: a
+        text: "The password is safe, because the file is deleted in the final file system."
+        explanation: "The `rm` instruction adds a layer that hides the file. The earlier layer still holds it."
+      - id: b
+        text: "The password is stored in an earlier layer that anyone who can pull the image can read, so it must be revoked and the image rebuilt without it."
+        explanation: "Correct. A secret that entered a layer must be treated as leaked: revoke it at the issuer and rebuild the image without it."
+      - id: c
+        text: "The password is safe if the image is only run in a namespace with a restricted network policy."
+        explanation: "A network policy limits traffic. It does not stop someone from pulling the image and reading the layer."
+      - id: d
+        text: "The password is protected because layers are encrypted in the registry."
+        explanation: "Registries store layers as content. A layer is not encrypted for the people who can pull it."
+    correct_option: b
+    explanation: "A deleted file stays in the earlier layer. Revoke the credential and rebuild the image."
+
+  - id: ats041-050-q06
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Explain where admission sits and why RBAC cannot check an image"
+    source_readings:
+      - sections/section-050/module-02/course-01-approved-registries-at-admission.md
+    prompt: "RBAC allows the `developers` group to create pods in `dockyard`. The platform team wants to reject any pod in that namespace whose image does not come from the company registry. Which control can do that?"
+    options:
+      - id: a
+        text: "A `Role` with the verb `create` on `pods` restricted to resource names that start with the registry name."
+        explanation: "`resourceNames` match object names, not image names, and RBAC never looks inside the pod."
+      - id: b
+        text: "A `NetworkPolicy` that blocks egress to every registry except the company one."
+        explanation: "A network policy controls traffic of pods. The check on the image name happens at admission, before the pod exists."
+      - id: c
+        text: "A `ValidatingAdmissionPolicy` and a binding that check the image of every container and init container and deny the pod."
+        explanation: "Correct. Admission sees the whole pod object and can reject it, so a validating policy fits."
+      - id: d
+        text: "A `ResourceQuota` that limits the number of pods in `dockyard`."
+        explanation: "A quota limits counts and resource totals. It does not read images."
+    correct_option: c
+    explanation: "RBAC sees who, the verb and the resource, and never the content of the object. Admission sees the whole object and can reject it."
+
+  - id: ats041-050-q07
+    type: single_choice
+    difficulty: advanced
+    learning_objective: "Explain why a Deployment is accepted while its pods are rejected, and why a prefix needs a trailing slash"
+    source_readings:
+      - sections/section-050/module-02/course-01-approved-registries-at-admission.md
+    prompt: "A `ValidatingAdmissionPolicy` for the resource `pods` denies images that do not start with `ghcr.io/stefanprodan`. The prefix has no trailing slash. An engineer applies a Deployment that uses `ghcr.io/stefanprodan-evil/podinfo:1`. What happens?"
+    options:
+      - id: a
+        text: "`kubectl apply` succeeds for the Deployment, the ReplicaSet creates the pods, and the policy does not reject them because the prefix also matches `stefanprodan-evil`."
+        explanation: "Correct. The prefix `ghcr.io/stefanprodan` matches `ghcr.io/stefanprodan-evil/podinfo`, so the look-alike repository passes. A trailing slash ends the match at the boundary."
+      - id: b
+        text: "`kubectl apply` is rejected at once, because the policy matches Deployments."
+        explanation: "The policy matches pods only, so the Deployment itself is not checked."
+      - id: c
+        text: "`kubectl apply` succeeds, and the ReplicaSet records `FailedCreate` events because the policy rejects the pods."
+        explanation: "This would be true for a prefix that does not match. Here the look-alike image passes the weak prefix, so the pods are admitted."
+      - id: d
+        text: "The pods run, because Deployments are exempt from admission policies."
+        explanation: "Deployments are not exempt. Their pods go through admission like any other pod."
+    correct_option: a
+    explanation: "Without the slash, the prefix matches look-alike repositories. The Deployment is accepted, and the pods are checked when the ReplicaSet creates them."
+
+  - id: ats041-050-q08
+    type: single_choice
+    difficulty: advanced
+    learning_objective: "Explain where signatures are verified and what a verifier outage does"
+    source_readings:
+      - sections/section-050/module-02/course-02-requiring-digests-and-rolling-out-policy.md
+      - sections/section-050/module-02/course-03-verifying-signatures-and-scanning-in-the-pipeline.md
+    prompt: "A cluster must run only images whose signature was made by the company build pipeline. The platform team deploys a verification webhook with `failurePolicy: Ignore`. During an outage of the webhook service, which statement is true?"
+    options:
+      - id: a
+        text: "Pods are rejected, because a missing answer counts as a failed check."
+        explanation: "That is the behavior of `failurePolicy: Fail`, not `Ignore`."
+      - id: b
+        text: "A `ValidatingAdmissionPolicy` takes over and verifies the signatures with a CEL expression."
+        explanation: "CEL expressions run inside the API server and cannot call a registry or read a signature."
+      - id: c
+        text: "The `imagePullPolicy` of every pod switches to `Always` and the kubelet verifies the signature."
+        explanation: "The pull policy only decides when the kubelet asks the registry. It does not verify signatures."
+      - id: d
+        text: "Pods are admitted without the signature check, so an attacker who can break the webhook can run unsigned images."
+        explanation: "Correct. With `Ignore`, the API server admits the request when the webhook does not answer. That is a bypass, so availability and enforcement need a deliberate trade-off."
+    correct_option: d
+    explanation: "`Ignore` admits requests when the webhook does not answer, which skips the check. `Fail` rejects them but can block pod creation."

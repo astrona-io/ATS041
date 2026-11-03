@@ -1,0 +1,102 @@
+# Exposure paths, there on purpose:
+#  - public-view gives the view ClusterRole to unauthenticated callers.
+#  - node-inspector mounts /etc/kubernetes of the node and runs as root.
+#  - scout may read every Secret in starfleet, but it only needs one ConfigMap.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: public-view
+subjects:
+  - kind: Group
+    name: system:unauthenticated
+    apiGroup: rbac.authorization.k8s.io
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: view
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: node-inspector
+  namespace: starfleet
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: node-inspector
+  namespace: starfleet
+  labels:
+    app: node-inspector
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: node-inspector
+  template:
+    metadata:
+      labels:
+        app: node-inspector
+    spec:
+      serviceAccountName: node-inspector
+      containers:
+        - name: node-inspector
+          image: curlimages/curl:8.22.0
+          command: ["sh", "-c", "while true; do sleep 30; done"]
+          securityContext:
+            runAsUser: 0
+          volumeMounts:
+            - name: node-etc
+              mountPath: /node-etc
+              readOnly: true
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 32Mi
+      volumes:
+        - name: node-etc
+          hostPath:
+            path: /etc/kubernetes
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: drive-credentials
+  namespace: starfleet
+type: Opaque
+stringData:
+  token: sample-token-not-a-real-credential
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fleet-settings
+  namespace: starfleet
+data:
+  mode: patrol
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: scout-secrets
+  namespace: starfleet
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: scout-secrets
+  namespace: starfleet
+subjects:
+  - kind: ServiceAccount
+    name: scout
+    namespace: starfleet
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: scout-secrets
