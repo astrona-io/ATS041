@@ -264,7 +264,7 @@ modules:
     difficulty: advanced
     estimated_duration: 30m
     topic: infrastructure-security
-    task_kind: troubleshoot
+    task_kind: troubleshooting
     tags:
     - capstone
     - service-account-token
@@ -316,7 +316,7 @@ modules:
     difficulty: intermediate
     estimated_duration: 20m
     topic: security-controls
-    task_kind: hardening
+    task_kind: build
     tags:
     - pod-security-admission
     - preventive-control
@@ -437,7 +437,7 @@ modules:
     difficulty: intermediate
     estimated_duration: 20m
     topic: workload-isolation
-    task_kind: hardening
+    task_kind: build
     tags:
     - host-pid
     - privileged
@@ -477,7 +477,7 @@ modules:
     difficulty: intermediate
     estimated_duration: 20m
     topic: network-segmentation
-    task_kind: hardening
+    task_kind: build
     tags:
     - networkpolicy
     - default-deny
@@ -554,7 +554,7 @@ modules:
     difficulty: intermediate
     estimated_duration: 15m
     topic: image-security
-    task_kind: fix
+    task_kind: troubleshooting
     tags:
     - image-digest
     - imagepullsecrets
@@ -675,7 +675,7 @@ modules:
     difficulty: intermediate
     estimated_duration: 20m
     topic: workload-security
-    task_kind: remediation
+    task_kind: troubleshooting
     tags:
     - secrets
     - secretkeyref
@@ -713,7 +713,7 @@ modules:
     difficulty: intermediate
     estimated_duration: 20m
     topic: workload-security
-    task_kind: hardening
+    task_kind: build
     tags:
     - security-context
     - run-as-non-root
